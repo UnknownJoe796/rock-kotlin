@@ -1,0 +1,79 @@
+/: /interpret
+/interpret:
+  /: /interpret
+  =: =mega.control.block
+  "@": main
+  variables:
+    result:
+      =: =mega.control.block.variable
+      value: 0.0
+      name: "Result"
+      block: =@main
+    iteration:
+      =: =mega.control.block.variable
+      value: 0.0
+      name: "Iteration Number"
+      block: =@main
+  statements:
+    - =: =mega.control.loop
+      "@": mainLoop
+      body:
+        =: =mega.control.block
+        variables: []
+        statements:
+          - =: =mega.type.set
+            this: =@main.variables.result
+            value:
+              =: =mega.float.8.sum
+              values:
+                - =: =mega.pointer.get
+                  this: =@main.variables.result
+                - =: =mega.float.8.divide
+                  left:
+                    =: =mega.control.if
+                    condition:
+                      =: =mega.float.8.compare
+                      smaller:
+                        =: =mega.float.8.modulus
+                        left:
+                          =: =mega.pointer.get
+                          this: =@main.variables.iteration
+                        right: 2.0
+                      larger: 0.1
+                    consequent: 4.0
+                    alternative: -4.0
+                  right:
+                    =: =mega.float.8.sum
+                    values:
+                      - 1.0
+                      - =: =mega.float.8.product
+                        values:
+                          - 2.0
+                          - =: =mega.pointer.get
+                            this: =@main.variables.iteration
+          - =: =mega.type.set
+            this: =@main.variables.iteration
+            value:
+              =: =mega.float.8.sum
+              values:
+                - =: =mega.pointer.get
+                  this: =@main.variables.iteration
+                - 1.0
+#          - =: =mega.debug.print
+#            value:
+#              =: =mega.pointer.get
+#              this: =@main.variables.iteration
+          - =: =mega.control.if
+            condition:
+              =: =mega.float.8.compare
+              smaller:
+                =: =mega.pointer.get
+                this: =@main.variables.iteration
+              larger: 10000.0
+            consequent: null
+            alternative:
+              =: =mega.control.loop.break
+              loop: =@mainLoop
+              value: "Success"
+    - =: =mega.pointer.get
+      this: =@main.variables.result

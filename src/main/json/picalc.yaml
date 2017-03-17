@@ -1,0 +1,88 @@
+validateMe:
+  _proto: /standard.validate
+  ref:
+    _proto: /main
+
+main:
+  _proto: /standard.control.block
+  variables:
+    result:
+      _proto: /standard.control.block.variable
+      value: 0.0
+      name: "Result"
+    iteration:
+      _proto: /standard.control.block.variable
+      value: 0.0
+      name: "Iteration Number"
+  statements:
+    mainLoop:
+      _proto: /standard.control.loop
+      body:
+        _proto: /standard.control.block
+        statements:
+          addToPi:
+            _proto: /standard.float.8.type.set
+            this:
+              _proto: ^main.variables.result.get
+            value:
+              _proto: /standard.float.8.sum
+              values:
+                currentValue:
+                  _proto: /standard.pointer.get
+                  this:
+                    _proto: ^main.variables.result.get
+                calculated:
+                  _proto: /standard.float.8.divide
+                  left:
+                    _proto: /standard.control.if
+                    condition:
+                      _proto: /standard.float.8.compare
+                      smaller:
+                        _proto: /standard.float.8.modulus
+                        left:
+                          _proto: /standard.pointer.get
+                          this:
+                            _proto: ^main.variables.iteration.get
+                        right: 2.0
+                      larger: 0.1
+                    consequent: 4.0
+                    alternative: -4.0
+                  right:
+                    _proto: /standard.float.8.sum
+                    values:
+                      - 1.0
+                      - _proto: /standard.float.8.product
+                        values:
+                          - 2.0
+                          - _proto: /standard.pointer.get
+                            this:
+                              _proto: ^main.variables.iteration.get
+          incrementCounter:
+            _proto: /standard.float.8.type.set
+            this:
+              _proto: ^main.variables.iteration.get
+            value:
+              _proto: /standard.float.8.sum
+              values:
+                currentValue:
+                  _proto: /standard.pointer.get
+                  this:
+                    _proto: ^main.variables.iteration.get
+                one: 1.0
+          breakWhenDone:
+            _proto: /standard.control.if
+            condition:
+              _proto: /standard.float.8.compare
+              smaller: 1000.0
+              larger:
+                _proto: /standard.pointer.get
+                this:
+                  _proto: ^main.variables.iteration.get
+            consequent:
+              _proto: ^mainLoop.break
+            alternative:
+              _proto: /standard.void.literal
+    result:
+      _proto: /standard.pointer.get
+      this:
+        _proto: ^main.variables.result.get

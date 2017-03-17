@@ -1,0 +1,509 @@
+---
+# This file has the standard library.
+
+standard:
+
+  expression:
+    _lang_english:
+      _lang: _lang_interpret
+      _proto: /standard.string.concat
+      values:
+        - "Unknown operation"
+
+  literal:
+    _lang_english:
+      _lang: _lang_interpret
+      _proto: /standard.string.concat
+      values:
+        - "\""
+        - _proto: ^literal
+          _lang: _lang_interpret
+        - "\""
+
+  type:
+    _lang_english:
+      _lang: _lang_interpret
+      _proto: /standard.string.concat
+      values:
+        - "Type"
+
+    set:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "set "
+          - _proto: ^set.this
+            _lang: _lang_english
+          - " to "
+          - _proto: ^set.value
+            _lang: _lang_english
+
+#    _lang_english:
+#      _proto: ^expression
+#      _lang: _lang_interpret
+
+    equal:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "("
+          - _proto: ^equal.left
+            _lang: _lang_english
+          - " = "
+          - _proto: ^equal.right
+            _lang: _lang_english
+          - ")"
+
+
+  # Controls
+
+  control:
+
+    block:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "Do the following, giving back the last:\n - "
+          - _proto: /standard.string.join
+            values:
+              _lang: _lang_english
+              _proto: ^block.statements
+            inbetween: "\n - "
+          - "\n\n"
+
+      variable:
+        get:
+          _lang_english:
+            _lang: _lang_interpret
+            _proto: /standard.string.concat
+            values:
+              - _proto: ^variable.name
+
+
+
+    if:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "(if "
+          - _proto: ^if.condition
+            _lang: _lang_english
+          - " then "
+          - _proto: ^if.consequent
+            _lang: _lang_english
+          - " otherwise "
+          - _proto: ^if.alternative
+            _lang: _lang_english
+          - ")"
+
+    loop:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "Repeat: "
+          - _proto: ^loop.body
+            _lang: _lang_english
+
+      break:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "stop repeating"
+
+      continue:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "go back to the repeat"
+
+
+
+  # Interface - so crazy it gets its own section
+
+#  interface:
+#    implements:
+#      _validation:
+#        type:
+#          _proto: /standard.validation.construct
+#          ref: ^implements.type
+#          prototype: /standard.type
+#
+#      operation:
+#    pointer:
+#      _proto: /standard.type
+#      implementation:
+#        _proto: ^interface.implements
+
+
+  # Types
+
+  void:
+    type:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "nothing"
+
+    literal:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "do nothing"
+
+
+  boolean:
+    type:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "boolean"
+
+    true:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "true"
+
+    false:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "false"
+
+    not:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "not "
+          - _proto: ^not.value
+            _lang: _lang_english
+
+
+    and:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.join
+        values:
+          _proto: ^and.values
+        inbetween: " and "
+
+    or:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.join
+        values:
+          _proto: ^or.values
+        inbetween: " or "
+
+    xor:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.join
+        values:
+          _proto: ^xor.values
+        inbetween: " exclusive or "
+
+    equal:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "("
+          - _proto: ^equal.left
+            _lang: _lang_english
+          - " = "
+          - _proto: ^equal.right
+            _lang: _lang_english
+          - ")"
+
+
+  string:
+
+    type:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "text"
+
+    concat:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "concatenate "
+          - _proto: /standard.string.join
+            values:
+              _lang: _lang_english
+              _proto: ^concat.values
+            inbetween: ", "
+
+    join:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "join "
+          - _proto: /standard.string.join
+            values:
+              _lang: _lang_english
+              _proto: ^join.values
+            inbetween: ", "
+          - " with "
+          - _proto: ^join.inbetween
+            _lang: _lang_english
+          - " inbetween them "
+
+    literal:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "\""
+          - _proto: ^literal
+            _lang: _lang_interpret
+          - "\""
+
+
+  commonNumber:
+      literal:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: ^literal
+
+      sum:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "("
+            - _proto: /standard.string.join
+              values:
+                _lang: _lang_english
+                _proto: ^sum.values
+              inbetween: " + "
+            - ")"
+
+      product:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "("
+            - _proto: /standard.string.join
+              values:
+                _lang: _lang_english
+                _proto: ^product.values
+              inbetween: " * "
+            - ")"
+
+      subtract:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "("
+            - _proto: ^subtract.left
+              _lang: _lang_english
+            - " - "
+            - _proto: ^subtract.right
+              _lang: _lang_english
+            - ")"
+
+      divide:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "("
+            - _proto: ^divide.left
+              _lang: _lang_english
+            - " / "
+            - _proto: ^divide.right
+              _lang: _lang_english
+            - ")"
+
+      modulus:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "("
+            - _proto: ^modulus.left
+              _lang: _lang_english
+            - " % "
+            - _proto: ^modulus.right
+              _lang: _lang_english
+            - ")"
+
+      equal:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "("
+            - _proto: ^equal.left
+              _lang: _lang_english
+            - " = "
+            - _proto: ^equal.right
+              _lang: _lang_english
+            - ")"
+
+      compare:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "("
+            - _proto: ^compare.larger
+              _lang: _lang_english
+            - " > "
+            - _proto: ^compare.smaller
+              _lang: _lang_english
+            - ")"
+
+  commonSignedNumber:
+    _proto: /standard.commonNumber
+
+    negative:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "-("
+          - _proto: ^negative.value
+            _lang: _lang_english
+          - ")"
+
+    absolute:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "|"
+          - _proto: ^absolute.value
+            _lang: _lang_english
+          - "|"
+
+
+  integer:
+    signed:
+      1:
+        type:
+          _lang_english:
+            _lang: _lang_interpret
+            _proto: /standard.string.concat
+            values:
+              - "1 byte signed integer"
+      2:
+        type:
+          _lang_english:
+            _lang: _lang_interpret
+            _proto: /standard.string.concat
+            values:
+              - "2 byte signed integer"
+      4:
+        type:
+          _lang_english:
+            _lang: _lang_interpret
+            _proto: /standard.string.concat
+            values:
+              - "4 byte signed integer"
+      8:
+        type:
+          _lang_english:
+            _lang: _lang_interpret
+            _proto: /standard.string.concat
+            values:
+              - "8 byte signed integer"
+    unsigned:
+      1:
+        type:
+          _lang_english:
+            _lang: _lang_interpret
+            _proto: /standard.string.concat
+            values:
+              - "1 byte unsigned integer"
+      2:
+        type:
+          _lang_english:
+            _lang: _lang_interpret
+            _proto: /standard.string.concat
+            values:
+              - "2 byte unsigned integer"
+      4:
+        type:
+          _lang_english:
+            _lang: _lang_interpret
+            _proto: /standard.string.concat
+            values:
+              - "4 byte unsigned integer"
+      8:
+        type:
+          _lang_english:
+            _lang: _lang_interpret
+            _proto: /standard.string.concat
+            values:
+              - "8 byte unsigned integer"
+
+
+  float:
+
+    2:
+      type:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "2 byte floating-point number"
+    4:
+      type:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "4 byte floating-point number"
+    8:
+      type:
+        _lang_english:
+          _lang: _lang_interpret
+          _proto: /standard.string.concat
+          values:
+            - "8 byte floating-point number"
+
+  pointer:
+    type:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - _proto: /standard.control.if
+            condition:
+              _proto: ^type.mutable
+            consequent: "mutable "
+            alternative: "immutable "
+          - "pointer to a(n) "
+          - _proto: ^type.subtype
+            _lang: _lang_english
+
+    get:
+      _lang_english:
+        _lang: _lang_interpret
+        _proto: /standard.string.concat
+        values:
+          - "the value of "
+          - _proto: ^get.this
+            _lang: _lang_english

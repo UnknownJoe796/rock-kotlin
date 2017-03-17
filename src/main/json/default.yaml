@@ -1,0 +1,339 @@
+---
+# This file has the standard library.
+
+standard:
+
+  # Core Constructs
+
+  validate:
+    _lang_default:
+      _proto: /standard.control.block
+      statements:
+        trace:
+          _proto: /standard.debug.print
+          value:
+            _proto: /standard.string.concat
+            values:
+              0: "Validating "
+              1:
+                _proto: /standard.debug.prototypeTrace
+                ref:
+                  _proto: ^validate.ref
+        result:
+          _proto: /standard.control.if
+          condition:
+            _proto: /standard.meta.exists
+            ref:
+              _proto: ^validate.ref._validation
+          consequent:
+            _proto: /standard.boolean.and
+            values:
+              _proto: ^validate.ref._validation
+          alternative: true
+
+  validation:
+
+    assert:
+      _lang_default:
+        _proto: /standard.control.if
+        condition:
+          _proto: ^assert.condition
+        consequent: true
+        alternative:
+          _proto: /standard.control.block
+          statements:
+            writeMessage:
+              _proto: /standard.debug.print
+              value:
+                _proto: ^assert.message
+            returnValue: false
+
+
+    expression:
+      _lang_default:
+        _proto: /standard.boolean.and
+        values:
+
+          constructExists:
+            _proto: /standard.validation.assert
+            condition:
+              _proto: /standard.meta.exists
+              ref:
+                _proto: ^expression.ref
+            message:
+              _proto: /standard.string.concat
+              values:
+                0: "Construct does not exist.\n\t"
+                1:
+                  _proto: /standard.debug.prototypeTrace
+                  separator: "\n\t"
+                  ref:
+                    _proto: ^expression
+
+          constructIsExpression:
+            _proto: /standard.validation.assert
+            condition:
+              _proto: /standard.meta.exists
+              ref:
+                _proto: ^expression.ref.returnType
+            message:
+              _proto: /standard.string.concat
+              values:
+                0: "Construct is not an expression.\n\t"
+                1:
+                  _proto: /standard.debug.prototypeTrace
+                  separator: "\n\t"
+                  ref:
+                    _proto: ^expression
+
+          typeMatches:
+            _proto: /standard.validation.assert
+            condition:
+              _proto: /standard.type.equal
+              left:
+                _proto: ^expression.ref.returnType
+              right:
+                _proto: ^expression.type
+            message:
+              _proto: /standard.string.concat
+              values:
+                0: "Expression of incorrect type.\n\t"
+                1:
+                  _proto: /standard.debug.prototypeTrace
+                  separator: "\n\t"
+                  ref:
+                    _proto: ^expression
+
+          recursing:
+            _proto: /standard.validate
+            ref:
+              _proto: ^expression.ref
+
+    expressions:
+      _lang_default:
+        _proto: /standard.boolean.and
+        values:
+          listExists:
+            _proto: /standard.meta.exists
+            ref: ^expressions.ref
+          inherits:
+            _proto: /standard.control.block
+            variables:
+              clean:
+                _proto: /standard.control.block.variable
+                value: true
+            statements:
+              check:
+                _proto: /standard.meta.forEach
+                ref:
+                  _proto: ^expressions.ref
+                statement:
+                  _proto: /standard.control.if
+                  condition:
+                    _proto: /standard.validation.expression
+                    ref:
+                      _proto: ^check.item
+                    type:
+                      _proto: ^expressions.type
+                  consequent:
+                    _proto: /standard.void.literal
+                  alternative:
+                    _proto: /standard.boolean.type.set
+                    this:
+                      _proto: ^inherits.variables.clean.get
+                    value: false
+              result:
+                _proto: /standard.pointer.get
+                this:
+                  _proto: ^inherits.variables.clean.get
+
+    expressionTypeless:
+      _lang_default:
+        _proto: /standard.boolean.and
+        values:
+
+          constructExists:
+            _proto: /standard.validation.assert
+            condition:
+              _proto: /standard.meta.exists
+              ref:
+                _proto: ^expressionTypeless.ref
+            message:
+              _proto: /standard.string.concat
+              values:
+                0: "Construct does not exist.\n\t"
+                1:
+                  _proto: /standard.debug.prototypeTrace
+                  separator: "\n\t"
+                  ref:
+                    _proto: ^expressionTypeless
+
+          constructIsExpression:
+            _proto: /standard.validation.assert
+            condition:
+              _proto: /standard.meta.exists
+              ref:
+                _proto: ^expressionTypeless.ref.returnType
+            message:
+              _proto: /standard.string.concat
+              values:
+                0: "Construct is not an expression.\n\t"
+                1:
+                  _proto: /standard.debug.prototypeTrace
+                  separator: "\n\t"
+                  ref:
+                    _proto: ^expressionTypeless
+
+          recursing:
+            _proto: /standard.validate
+            ref:
+              _proto: ^expressionTypeless.ref
+
+    expressionsTypeless:
+      _lang_default:
+        _proto: /standard.boolean.and
+        values:
+          listExists:
+            _proto: /standard.meta.exists
+            ref: ^expressionsTypeless.ref
+          inherits:
+            _proto: /standard.control.block
+            variables:
+              clean:
+                _proto: /standard.control.block.variable
+                value: true
+            statements:
+              check:
+                _proto: /standard.meta.forEach
+                ref:
+                  _proto: ^expressionsTypeless.ref
+                statement:
+                  _proto: /standard.control.if
+                  condition:
+                    _proto: /standard.validation.expressionTypeless
+                    ref:
+                      _proto: ^check.item
+                    type:
+                      _proto: ^expressionsTypeless.type
+                  consequent:
+                    _proto: /standard.void.literal
+                  alternative:
+                    _proto: /standard.boolean.type.set
+                    this:
+                      _proto: ^inherits.variables.clean.get
+                    value: false
+              result:
+                _proto: /standard.pointer.get
+                this:
+                  _proto: ^inherits.variables.clean.get
+
+    type:
+      _lang_default:
+        _proto: /standard.boolean.and
+        values:
+
+          constructExists:
+            _proto: /standard.validation.assert
+            condition:
+              _proto: /standard.meta.exists
+              ref:
+                _proto: ^type.ref
+            message:
+              _proto: /standard.string.concat
+              values:
+                0: "Construct does not exist.\n\t"
+                1:
+                  _proto: /standard.debug.prototypeTrace
+                  separator: "\n\t"
+                  ref:
+                    _proto: ^type
+
+          constructIsType:
+            _proto: /standard.validation.assert
+            condition:
+              _proto: /standard.meta.exists
+              ref:
+                _proto: ^type.ref.uuid
+            message:
+              _proto: /standard.string.concat
+              values:
+                0: "Construct is not a type.\n\t"
+                1:
+                  _proto: /standard.debug.prototypeTrace
+                  separator: "\n\t"
+                  ref:
+                    _proto: ^type
+
+          recursing:
+            _proto: /standard.validate
+            ref:
+              _proto: ^type.ref
+
+    types:
+      _lang_default:
+        _proto: /standard.boolean.and
+        values:
+          listExists:
+            _proto: /standard.meta.exists
+            ref: ^types.ref
+          inherits:
+            _proto: /standard.control.block
+            variables:
+              clean:
+                _proto: /standard.control.block.variable
+                value: true
+            statements:
+              check:
+                _proto: /standard.meta.forEach
+                ref:
+                  _proto: ^types.ref
+                statement:
+                  _proto: /standard.control.if
+                  condition:
+                    _proto: /standard.validation.type
+                    ref:
+                      _proto: ^check.item
+                  consequent:
+                    _proto: /standard.void.literal
+                  alternative:
+                    _proto: /standard.boolean.type.set
+                    this:
+                      _proto: ^inherits.variables.clean.get
+                    value: false
+              result:
+                _proto: /standard.pointer.get
+                this:
+                  _proto: ^inherits.variables.clean.get
+
+    pointer:
+      _lang_default:
+        _proto: /standard.boolean.and
+        values:
+          constructExists:
+            _proto: /standard.meta.exists
+            ref:
+              _proto: ^pointer.ref.returnType
+
+          typeMatches:
+            _proto: /standard.type.equal
+            left:
+              _proto: ^pointer.ref.returnType
+            right:
+              _proto: ^pointer.type
+
+          subtypeMatches:
+            _proto: /standard.type.equal
+            left:
+              _proto: ^pointer.ref.returnType.subtype
+            right:
+              _proto: ^pointer.type
+
+          mutabilityWorks:
+            _proto: /standard.boolean.or
+            values:
+              isMutable:
+                _proto: ^pointer.ref.returnType.mutable
+              mutableNotRequired:
+                _proto: /standard.boolean.not
+                value:
+                  _proto: ^pointer.mutable

@@ -1,0 +1,762 @@
+---
+# This file has the standard library.
+
+# Definition of an expression: it has a returnType
+# Definition of a type: it has a uuid
+# Definition of a literal: a type with an additional property called _isStandardLiteral
+
+standard:
+
+  # Core Constructs
+
+  validate:
+    _abstract: true
+    _validation:
+      target: true
+
+  expression:
+    _abstract: true
+    _validation:
+      returnType:
+        _proto: /standard.validation.type
+        ref:
+          _proto: ^expression.returnType
+
+  literal:
+    _abstract: true
+    _proto: /standard.expression
+    _isStandardLiteral: true
+
+  meta:
+
+    reference:
+      _proto: /standard.literal
+      _abstract: true
+
+    exists:
+      _proto: /standard.expression
+      _abstract: true
+      returnType:
+        _proto: /standard.boolean.type
+      metaComment: "'ref' is the reference to check"
+#      _validation:
+#        ref: /standard.validation.
+
+    key:
+      _proto: /standard.expression
+      _abstract: true
+      returnType:
+        _proto: /standard.string.type
+      metaComment: "'ref' is a construct with a reference"
+
+    path:
+      _proto: /standard.expression
+      _abstract: true
+      returnType:
+        _proto: /standard.string.type
+      metaComment: "'ref' is a construct with a reference"
+
+    forEach:
+      _proto: /standard.expression
+      _abstract: true
+      returnType:
+        _proto: /standard.void.type
+      metaComment: "Inputs are 'statement' and 'ref'"
+
+      index:
+        _proto: /standard.expression
+        returnType:
+          _proto: /standard.integer.signed.4.type
+
+      key:
+        _proto: /standard.expression
+        returnType:
+          _proto: /standard.string.type
+
+      item:
+        metaComment: "Prototype changes to reference it each cycle of the loop"
+
+
+  debug:
+
+    print:
+      _proto: /standard.expression
+      _abstract: true
+      returnType:
+        _proto: /standard.void.type
+      metaComment: "use 'value'"
+
+    prototypeTrace:
+      _proto: /standard.expression
+      _abstract: true
+      returnType:
+        _proto: /standard.string.type
+      separator: "\n"
+      metaComment: "'ref' is a construct with a reference"
+
+
+
+  validation:
+
+    assert:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      # Takes - condition, message
+
+    expression:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        ref: true
+        type:
+          _proto: /standard.validation.type
+          ref:
+            _proto: ^expression.type
+
+    expressions:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        ref: true
+        type:
+          _proto: /standard.validation.type
+          ref:
+            _proto: ^expressions.type
+
+    expressionTypeless:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        ref: true
+
+    expressionsTypeless:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        ref: true
+
+    type:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        ref: true
+
+    types:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        ref: true
+
+    pointer:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      mutable: false
+      _validation:
+        ref: true
+        type:
+          _proto: /standard.validation.type
+          ref:
+            _proto: ^pointer.type
+        mutable:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^pointer.mutable
+          type:
+            _proto: /standard.boolean.type
+
+  type:
+    set:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^type
+      _validation:
+        this:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^set.this
+          type:
+            _proto: /standard.pointer
+            subtype:
+              _proto: ^type
+            mutable: true
+        value:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^set.value
+          type:
+            _proto: ^type
+
+    equal:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        left:
+          _proto: /standard.validation.type
+          ref:
+            _proto: ^equal.left
+        right:
+          _proto: /standard.validation.type
+          ref:
+            _proto: ^equal.right
+
+
+  # Controls
+
+  control:
+
+    block:
+      _proto: /standard.expression
+      _abstract: true
+      returnType:
+        _proto: ^block.statements#-1.returnType #The last entry
+      _validation:
+        statements:
+          _proto: /standard.validation.expressionsTypeless
+          ref:
+            _proto: ^block.statements
+        final:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^block.statements#-1
+          type:
+            _proto: ^block.returnType
+#        variables:
+#          _proto: /standard.validation.constructs
+#          ref:
+#            _proto: ^block.variables
+#          prototype:
+#            _proto: /standard.control.block.variable
+
+      variable:
+        _abstract: true
+        type:
+          _proto: ^variable.value.returnType
+        _validation:
+          type:
+            _proto: /standard.validation.type
+            ref:
+              _proto: ^variable.type
+          value:
+            _proto: /standard.validation.expression
+            ref:
+              _proto: ^variable.value
+            type:
+              _proto: ^variable.type
+        get:
+          _proto: /standard.expression
+          _abstract: true
+          returnType:
+            _proto: /standard.pointer.type
+            mutable: true
+            subtype:
+              _proto: ^variable.type
+
+
+
+    if:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^if.alternative
+      alternative:
+        _proto: /standard.void.literal
+      _validation:
+        condition:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^if.condition
+          type:
+            _proto: /standard.boolean.type
+        consequent:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^if.consequent
+          type:
+            _proto: ^if.returnType
+        alternative:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^if.alternative
+          type:
+            _proto: ^if.returnType
+
+    loop:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^loop.body
+      _validation:
+        body:
+          _proto: /standard.validation.expressionTypeless
+          ref:
+            _proto: ^loop.body
+        hasBreak:
+          metaComment: "TODO: make a validation for ensuring there is a break in the code following"
+
+      break:
+        _abstract: true
+        _proto: /standard.expression
+        value:
+          _proto: /standard.void.literal
+        _validation:
+          value:
+            _proto: /standard.validation.expression
+            ref:
+              _proto: ^break.value
+            type:
+              _proto: ^loop.returnType
+
+      continue:
+        _abstract: true
+        _proto: /standard.expression
+        returnType: /standard.void.type
+
+  # Interface - so crazy it gets its own section
+
+#  interface:
+#    implements:
+#      _validation:
+#        type:
+#          _proto: /standard.validation.construct
+#          ref: ^implements.type
+#          prototype: /standard.type
+#
+#      operation:
+#    pointer:
+#      _proto: /standard.type
+#      implementation:
+#        _proto: ^interface.implements
+
+
+  # Types
+
+  void:
+    type:
+      _proto: /standard.type
+      uuid: uuid-standard-void
+
+    literal:
+      _abstract: true
+      _proto: /standard.literal
+      metaComment: no-op
+      returnType:
+        _proto: /standard.void.type
+
+
+  boolean:
+    type:
+      _proto: /standard.type
+      uuid: uuid-standard-boolean
+
+    true:
+      _abstract: true
+      _proto: /standard.literal
+      returnType:
+        _proto: /standard.boolean.type
+
+    false:
+      _abstract: true
+      _proto: /standard.literal
+      returnType:
+        _proto: /standard.boolean.type
+
+    not:
+      _abstract: true
+      _proto: /standard.expression
+      _validation:
+        value:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^not.value
+          type:
+            _proto: /standard.boolean.type
+
+    and:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        values:
+          _proto: /standard.validation.expressions
+          ref:
+            _proto: ^and.values
+          type:
+            _proto: /standard.boolean.type
+
+    or:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        values:
+          _proto: /standard.validation.expressions
+          ref:
+            _proto: ^or.values
+          type:
+            _proto: /standard.boolean.type
+
+    xor:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        values:
+          _proto: /standard.validation.expressions
+          ref:
+            _proto: ^xor.values
+          type:
+            _proto: /standard.boolean.type
+
+    equal:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.boolean.type
+      _validation:
+        left:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^equal.left
+          type:
+            _proto: /standard.boolean.type
+        right:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^equal.right
+          type:
+            _proto: /standard.boolean.type
+
+
+  string:
+
+    type:
+      _proto: /standard.type
+      uuid: uuid-standard-string
+
+    concat:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.string.type
+      _validation:
+        values:
+          _proto: /standard.validation.expressions
+          ref:
+            _proto: ^concat.values
+          type:
+            _proto: /standard.string.type
+
+    join:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: /standard.string.type
+      _validation:
+        values:
+          _proto: /standard.validation.expressions
+          ref:
+            _proto: ^join.values
+          type:
+            _proto: /standard.string.type
+        inbetween:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^join.inbetween
+          type:
+            _proto: /standard.string.type
+
+    literal:
+      _abstract: true
+      _proto: /standard.literal
+      returnType:
+        _proto: /standard.string.type
+
+
+  commonNumber:
+    literal:
+      _abstract: true
+      _proto: /standard.literal
+      returnType:
+        _proto: ^commonNumber.type
+
+    sum:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^commonNumber.type
+      _validation:
+        values:
+          _proto: /standard.validation.expressions
+          ref:
+            _proto: ^sum.values
+          type:
+            _proto: ^commonNumber.type
+
+    product:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^commonNumber.type
+      _validation:
+        values:
+          _proto: /standard.validation.expressions
+          ref:
+            _proto: ^product.values
+          type:
+            _proto: ^commonNumber.type
+
+    subtract:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^commonNumber.type
+      _validation:
+        left:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^subtract.left
+          type:
+            _proto: ^commonNumber.type
+        right:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^subtract.right
+          type:
+            _proto: ^commonNumber.type
+
+    divide:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^commonNumber.type
+      _validation:
+        left:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^divide.left
+          type:
+            _proto: ^commonNumber.type
+        right:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^divide.right
+          type:
+            _proto: ^commonNumber.type
+
+    modulus:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^commonNumber.type
+      _validation:
+        left:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^modulus.left
+          type:
+            _proto: ^commonNumber.type
+        right:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^modulus.right
+          type:
+            _proto: ^commonNumber.type
+
+    equal:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^commonNumber.type
+      _validation:
+        left:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^equal.left
+          type:
+            _proto: ^commonNumber.type
+        right:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^equal.right
+          type:
+            _proto: ^commonNumber.type
+
+    compare:
+      _abstract: true
+      _proto: /standard.expression
+      returnType:
+        _proto: ^commonNumber.type
+      _validation:
+        smaller:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^compare.smaller
+          type:
+            _proto: ^commonNumber.type
+        larger:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^compare.larger
+          type:
+            _proto: ^commonNumber.type
+
+  commonSignedNumber:
+    _proto: /standard.commonNumber
+
+    negative:
+      _proto: /standard.expression
+      _abstract: true
+      returnType:
+        _proto: ^commonSignedNumber.type
+      _validation:
+        value:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^negative.value
+          type:
+            _proto: ^commonSignedNumber.type
+
+    absolute:
+      _proto: /standard.expression
+      _abstract: true
+      returnType:
+        _proto: ^commonSignedNumber.type
+      _validation:
+        value:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^absolute.value
+          type:
+            _proto: ^commonSignedNumber.type
+
+
+  integer:
+    signed:
+      1:
+        _proto: /standard.commonSignedNumber
+        type:
+          _proto: /standard.type
+          uuid: uuid-standard-integer-signed-1
+      2:
+        _proto: /standard.commonSignedNumber
+        type:
+          _proto: /standard.type
+          uuid: uuid-standard-integer-signed-2
+      4:
+        _proto: /standard.commonSignedNumber
+        type:
+          _proto: /standard.type
+          uuid: uuid-standard-integer-signed-4
+      8:
+        _proto: /standard.commonSignedNumber
+        type:
+          _proto: /standard.type
+          uuid: uuid-standard-integer-signed-8
+    unsigned:
+      1:
+        _proto: /standard.commonNumber
+        type:
+          _proto: /standard.type
+          uuid: uuid-standard-integer-unsigned-1
+      2:
+        _proto: /standard.commonNumber
+        type:
+          _proto: /standard.type
+          uuid: uuid-standard-integer-unsigned-2
+      4:
+        _proto: /standard.commonNumber
+        type:
+          _proto: /standard.type
+          uuid: uuid-standard-integer-unsigned-4
+      8:
+        _proto: /standard.commonNumber
+        type:
+          _proto: /standard.type
+          uuid: uuid-standard-integer-unsigned-8
+
+
+  float:
+    commonFloat:
+      _proto: /standard.commonSignedNumber
+
+    2:
+      _proto: /standard.float.commonFloat
+      type:
+        _proto: /standard.type
+        uuid: uuid-standard-float-2
+    4:
+      _proto: /standard.float.commonFloat
+      type:
+        _proto: /standard.type
+        uuid: uuid-standard-float-4
+    8:
+      _proto: /standard.float.commonFloat
+      type:
+        _proto: /standard.type
+        uuid: uuid-standard-float-8
+
+  pointer:
+    type:
+      _abstract: true
+      _proto: /standard.type
+      _validation:
+        subtype:
+          _proto: /standard.validation.type
+          ref:
+            _proto: ^type.subtype
+        mutable:
+          _proto: /standard.validation.expression
+          ref:
+            _proto: ^type.mutable
+          type:
+            _proto: /standard.boolean.type
+      uuid:
+        _proto: /standard.string.concat
+        values:
+          0: "uuid-standard-pointer."
+          1:
+            _proto: ^type.subtype.uuid
+          2:
+            _proto: /standard.control.if
+            condition: ^type.mutable
+            consequent: "M"
+            alternative: "I"
+
+    get:
+      _abstract: true
+      _proto: /standard.expression
+      _validation:
+        this:
+          _proto: /standard.validation.expressionTypeless
+          ref:
+            _proto: ^get.this
+#        thisIsPointer:
+#          _proto: /standard.validation.construct
+#          ref:
+#            _proto: ^get.this.returnType
+#          prototype:
+#            _proto: /standard.pointer.type
+      returnType:
+        _proto: ^get.this.returnType.subtype
