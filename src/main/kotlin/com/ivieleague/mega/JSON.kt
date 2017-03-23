@@ -1,6 +1,7 @@
 package com.ivieleague.mega
 
 import java.util.*
+import kotlin.collections.LinkedHashMap
 
 /**
  *
@@ -180,7 +181,7 @@ object JSON {
                 val label: String? = item[KEY_LABEL] as? String
                 val language: String? = item[KEY_LANGUAGE] as? String ?: defaultLanguage
                 val prototype: Ref? = item[KEY_PROTOTYPE]?.let { toRef(SubRef.Key(KEY_PROTOTYPE), it, language) }
-                val children = HashMap<String, Ref>()
+                val children = LinkedHashMap<String, Ref>()
                 for ((key, value) in item) {
                     when (key) {
                         !is String -> throw IllegalArgumentException()
