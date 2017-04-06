@@ -14,6 +14,8 @@ class MergedCall(val calls: Array<Call>) : Call {
                 if (existing is Ref.Definition && value is Ref.Definition) {
                     if (existing.call is MergedCall) {
                         this[key] = Ref.Definition(existing.subref, MergedCall(existing.call.calls + value.call))
+                    } else {
+                        this[key] = Ref.Definition(existing.subref, MergedCall(arrayOf(existing.call, value.call)))
                     }
                 } else if (existing == null) {
                     this[key] = value

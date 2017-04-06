@@ -68,7 +68,7 @@ class TrackingCallRealization(
         //Traverse through the executions until an interpretation is found
 //        println(debugInfo())
         while (true) {
-            val language = this.call.language ?: throw IllegalArgumentException("Call cannot be abstract - ${debugInfo()}")
+            val language = this.call.language ?: Call.LANGUAGE_INTERPRET//throw IllegalArgumentException("Call cannot be abstract - ${debugInfo()}")
             //Traverse through prototypes until a ref is found
             var traversing = false
             for (thisRef in mutateThroughPrototypesIterator()) {

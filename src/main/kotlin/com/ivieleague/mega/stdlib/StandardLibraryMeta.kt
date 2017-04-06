@@ -1,4 +1,13 @@
----
+package com.ivieleague.mega.stdlib
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.ivieleague.mega.JSON
+
+/**
+ * Created by joseph on 4/5/17.
+ */
+fun StandardLibraryMeta() = JSON.toCall(ObjectMapper(YAMLFactory()).readValue("""---
 mega:
   pointer:
     get:
@@ -56,11 +65,11 @@ mega:
       continue:
         _compressed: "Skip the rest and continue [loop]"
     block:
-      _compressed: "Do the following: [statements]"
+      _compressed: "Do the following: \n[variables]\n[statements]"
       variable:
         _compressed: "starts out as [value], type [type]"
     if:
-      _compressed: "if [condition] then [consequent], otherwise [alternative]"
+      _compressed: "if [condition]\nthen [consequent]\notherwise [alternative]"
   integer:
     signed:
       1:
@@ -71,7 +80,7 @@ mega:
         negative:
           _compressed: "-[value]"
         compare:
-          _compressed: "[larger] > [smaller]"
+          _compressed: "[smaller] < [larger]"
         absolute:
           _compressed: "|[value]|"
         subtract:
@@ -91,7 +100,7 @@ mega:
         negative:
           _compressed: "-[value]"
         compare:
-          _compressed: "[larger] > [smaller]"
+          _compressed: "[smaller] < [larger]"
         absolute:
           _compressed: "|[value]|"
         subtract:
@@ -111,7 +120,7 @@ mega:
         negative:
           _compressed: "-[value]"
         compare:
-          _compressed: "[larger] > [smaller]"
+          _compressed: "[smaller] < [larger]"
         absolute:
           _compressed: "|[value]|"
         subtract:
@@ -131,7 +140,7 @@ mega:
         negative:
           _compressed: "-[value]"
         compare:
-          _compressed: "[larger] > [smaller]"
+          _compressed: "[smaller] < [larger]"
         absolute:
           _compressed: "|[value]|"
         subtract:
@@ -150,7 +159,7 @@ mega:
         product:
           _compressed: "[values| × ]"
         compare:
-          _compressed: "[larger] > [smaller]"
+          _compressed: "[smaller] < [larger]"
         subtract:
           _compressed: "[left] - [right]"
         sum:
@@ -166,7 +175,7 @@ mega:
         product:
           _compressed: "[values| × ]"
         compare:
-          _compressed: "[larger] > [smaller]"
+          _compressed: "[smaller] < [larger]"
         subtract:
           _compressed: "[left] - [right]"
         sum:
@@ -182,7 +191,7 @@ mega:
         product:
           _compressed: "[values| × ]"
         compare:
-          _compressed: "[larger] > [smaller]"
+          _compressed: "[smaller] < [larger]"
         subtract:
           _compressed: "[left] - [right]"
         sum:
@@ -198,7 +207,7 @@ mega:
         product:
           _compressed: "[values| × ]"
         compare:
-          _compressed: "[larger] > [smaller]"
+          _compressed: "[smaller] < [larger]"
         subtract:
           _compressed: "[left] - [right]"
         sum:
@@ -217,7 +226,7 @@ mega:
       negative:
         _compressed: "-[value]"
       compare:
-        _compressed: "[larger] > [smaller]"
+        _compressed: "[smaller] < [larger]"
       absolute:
         _compressed: "|[value]|"
       subtract:
@@ -237,7 +246,7 @@ mega:
       negative:
         _compressed: "-[value]"
       compare:
-        _compressed: "[larger] > [smaller]"
+        _compressed: "[smaller] < [larger]"
       absolute:
         _compressed: "|[value]|"
       subtract:
@@ -257,7 +266,7 @@ mega:
       negative:
         _compressed: "-[value]"
       compare:
-        _compressed: "[larger] > [smaller]"
+        _compressed: "[smaller] < [larger]"
       absolute:
         _compressed: "|[value]|"
       subtract:
@@ -274,3 +283,4 @@ mega:
       _compressed: "[left] = [right]"
     set:
       _compressed: "set [this] to [value]"
+""", Map::class.java))

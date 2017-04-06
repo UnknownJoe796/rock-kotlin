@@ -71,6 +71,18 @@ class CoreTest {
     }
 
     @Test
+    fun inheritanceTest() {
+        DSL {
+            "super" - call("/interpret", null) {
+                "child" - action { println("Success") }
+            }
+            "sub" - call("/language", root("super")) {}
+            "/interpret" - root("sub", "child")
+            language = "/interpret"
+        }.invokeAsRoot()
+    }
+
+    @Test
     fun languageTest() {
         val result = DSL {
             "literal" - abstract {
