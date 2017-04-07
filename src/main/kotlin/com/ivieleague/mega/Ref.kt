@@ -8,6 +8,8 @@ sealed class Ref {
         override fun traverse(from: CallRealization): CallRealization {
             return from.mutateChild(subref, call)
         }
+
+        override fun equals(other: Any?): Boolean = other is Definition && subref == other.subref && call same other.call
         override fun toString(): String = "Definition: " + subref.toString()
     }
 
@@ -65,11 +67,30 @@ sealed class Ref {
     }
 
     fun List<SubRef>.hashCodeList(): Int = sumBy(SubRef::hashCode)
-    fun List<SubRef>.equalsList(other: List<SubRef>): Boolean {
-        if (this.size != other.size) return false
-        for (index in this.indices) {
-            if (this[index] != other[index]) return false
-        }
-        return true
+}
+
+infix fun Call.same(other: Call): Boolean {
+    return this.prototype == other.prototype &&
+            this.children same other.children &&
+            this.list equalsList other.list &&
+            this.label == other.label &&
+            this.language == other.language &&
+            this.literal == other.literal &&
+            this.invocation == other.invocation
+}
+
+infix fun Map<String, Ref>.same(other: Map<String, Ref>): Boolean {
+    if (this.size != other.size) return false
+    for (key in keys) {
+        if (this[key] != other[key]) return false
     }
+    return true
+}
+
+infix fun <T> List<T>.equalsList(other: List<T>): Boolean {
+    if (this.size != other.size) return false
+    for (index in this.indices) {
+        if (this[index] != other[index]) return false
+    }
+    return true
 }

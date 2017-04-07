@@ -12,6 +12,7 @@ object TestCommons {
     fun getStandardLibrary(): Call = StandardLibrary()
     fun parse(yaml: String) = JSON.toCall(ObjectMapper(YAMLFactory()).readValue(yaml, Map::class.java))
     fun parsePlusStandardLibrary(yaml: String) = MergedCall(arrayOf(parse(yaml), getStandardLibrary()))
+    fun parsePlusStandardLibraryAlternate(yaml: String) = LazyMergedCall(listOf(parse(yaml), getStandardLibrary()))
     fun execute(yaml: String) = parsePlusStandardLibrary(yaml).invokeAsRoot()
     fun toYaml(program: Call): String {
         return ObjectMapper(YAMLFactory()).writeValueAsString(JSON.fromCall(program))

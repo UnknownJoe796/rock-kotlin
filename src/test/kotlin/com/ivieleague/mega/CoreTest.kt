@@ -24,6 +24,55 @@ class CoreTest {
     )
 
     @Test
+    fun sameTest() {
+        val litInterp = { it: CallRealization -> it.context.literal }
+        val plusInterp = { it: CallRealization ->
+            val context = it.mutateContext()
+            context.getAndRun<Int>("left") + context.getAndRun<Int>("right")
+        }
+        assertEquals(true, DSL {
+            "literal" - interpretation(litInterp)
+            "plus" - interpretation(plusInterp)
+            "main" - call(Call.Companion.LANGUAGE_INTERPRET, root("plus")) {
+                "left" - literal(root("literal"), 1)
+                "right" - literal(root("literal"), 2)
+            }
+        } same DSL {
+            "literal" - interpretation(litInterp)
+            "plus" - interpretation(plusInterp)
+            "main" - call(Call.Companion.LANGUAGE_INTERPRET, root("plus")) {
+                "left" - literal(root("literal"), 1)
+                "right" - literal(root("literal"), 2)
+            }
+        })
+    }
+
+    @Test
+    fun differentTest() {
+        assertEquals(false, DSL {
+            "literal" - interpretation { it.context.literal }
+            "plus" - interpretation {
+                val context = it.mutateContext()
+                context.getAndRun<Int>("left") + context.getAndRun<Int>("right")
+            }
+            "main" - call(Call.Companion.LANGUAGE_INTERPRET, root("plus")) {
+                "left" - literal(root("literal"), 1)
+                "right" - literal(root("literal"), 2)
+            }
+        } same DSL {
+            "literal" - interpretation { it.context.literal }
+            "plus" - interpretation {
+                val context = it.mutateContext()
+                context.getAndRun<Int>("left") + context.getAndRun<Int>("right")
+            }
+            "main" - call(Call.Companion.LANGUAGE_INTERPRET, root("plus")) {
+                "left" - literal(root("literal"), 4)
+                "right" - literal(root("literal"), 2)
+            }
+        })
+    }
+
+    @Test
     fun indirectTest() = assertEquals(
             3,
             DSL {

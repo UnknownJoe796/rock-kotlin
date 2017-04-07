@@ -1,6 +1,5 @@
 package com.ivieleague.mega
 
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
 
@@ -12,5 +11,18 @@ class PiTest {
     fun testLiteral() {
         val program = TestCommons.parsePlusStandardLibrary(File("./src/main/yaml/picalc.yaml").readText())
         println(program.invokeAsRoot())
+    }
+
+    @Test
+    fun testLiteralLazy() {
+        val program = TestCommons.parsePlusStandardLibraryAlternate(File("./src/main/yaml/picalc.yaml").readText())
+        println(program.invokeAsRoot())
+    }
+
+    @Test
+    fun testSame() {
+        val first = TestCommons.parsePlusStandardLibrary(File("./src/main/yaml/picalc.yaml").readText())
+        val second = TestCommons.parsePlusStandardLibraryAlternate(File("./src/main/yaml/picalc.yaml").readText())
+        println(first same second)
     }
 }
