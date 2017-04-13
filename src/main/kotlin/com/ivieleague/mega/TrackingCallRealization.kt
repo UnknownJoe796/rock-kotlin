@@ -6,7 +6,7 @@ import java.util.*
 class TrackingCallRealization(
         override var call: Call,
         override var root: Call,
-        override var context: Call,
+        var context: Call,
         var contextSize: Int = 0,
         var labels: MutableMap<String, Pair<Call, Int>> = HashMap(),
         var refs: MutableList<SubRef> = ArrayList(),
@@ -32,6 +32,7 @@ class TrackingCallRealization(
     }
 
     override fun mutateContext(): CallRealization = this.apply {
+        if (call == context) println("RECONTEXT")
         call = context
         refs.clear()
         refs.addAll(contextRefs)
@@ -65,19 +66,22 @@ class TrackingCallRealization(
     }
 
     override fun mutateInvoke(): Any? {
+        println("Invoke ${debugInfo()}")
         //Traverse through the executions until an interpretation is found
-//        println(debugInfo())
         while (true) {
             val language = this.call.language ?: Call.LANGUAGE_INTERPRET//throw IllegalArgumentException("Call cannot be abstract - ${debugInfo()}")
             //Traverse through prototypes until a ref is found
             var traversing = false
             for (thisRef in mutateThroughPrototypesIterator()) {
-
-                if (language == Call.LANGUAGE_INTERPRET && thisRef.call.invocation != null)
+                println("Proto ${debugInfo()}")
+                if (language == Call.LANGUAGE_INTERPRET && thisRef.call.invocation != null) {
+                    println("Invoking ${debugInfo()}")
                     return thisRef.call.invocation!!.invoke(thisRef)
+                }
                 val ref = thisRef.call.children[language] ?: thisRef.call.children[Call.LANGUAGE_DEFAULT]
                 if (ref != null) {
                     ref.traverse(thisRef)
+                    println("Traversed ${debugInfo()}")
                     traversing = true
                     break
                 }
@@ -86,5 +90,5 @@ class TrackingCallRealization(
         }
     }
 
-    override fun debugInfo(): String = refs.joinToString(".")
+    override fun debugInfo(): String = "Path: ${refs.joinToString(".")} Context: ${(copy() as TrackingCallRealization).refs.joinToString(".")}"
 }

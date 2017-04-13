@@ -1,5 +1,7 @@
 ---
 mega:
+  main:
+    /interpret: =.action
   pointer:
     get:
       _compressed: "get [this]"

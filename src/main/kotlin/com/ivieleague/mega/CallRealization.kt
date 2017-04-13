@@ -6,9 +6,7 @@ package com.ivieleague.mega
  */
 interface CallRealization {
     val call: Call
-
     val root: Call
-    val context: Call
 
     fun copy(): CallRealization
 
@@ -35,7 +33,7 @@ interface CallRealization {
     fun invoke(): Any? = copy().mutateInvoke()
 
     fun debugInfo(): String {
-        return "Call to ${call.prototype?.let { JSON.fromRef(it) }} in context labeled ${context.label}"
+        return "Call to ${call.prototype?.let { JSON.fromRef(it) }} in context "
     }
 
     fun mutateGetKeys(): Sequence<String> = mutateThroughPrototypesIterator().asSequence().flatMap {
@@ -43,6 +41,7 @@ interface CallRealization {
     }.distinct()
 }
 
+fun CallRealization.mutateLiteral() = mutateThroughPrototypesIterator().asSequence().mapNotNull { it.call.literal }.firstOrNull()
 fun CallRealization.getKeys() = copy().mutateGetKeys()
 fun CallRealization.realizationMap(): Sequence<Pair<String, CallRealization>> = getKeys().map { it to get(it) }
 fun CallRealization.realizationList(): Sequence<CallRealization> = call.list.asSequence().map { it.traverse(copy()) }

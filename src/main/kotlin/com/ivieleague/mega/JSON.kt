@@ -71,6 +71,10 @@ object JSON {
                     map.put(KEY_LANGUAGE, call.language!!)
                 if (call.label != null)
                     map.put(KEY_LABEL, call.label!!)
+                if (call.literal != null)
+                    map.put("*literal", call.literal!!)
+                if (call.list.isNotEmpty())
+                    map.put("*list", call.list.map { fromRef(it) })
                 map.putAll(call.children.asSequence().mapNotNull {
                     it.key to fromRef(it.value)
                 })

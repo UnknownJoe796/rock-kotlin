@@ -8,7 +8,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
  */
 fun main(args: Array<out String>) {
     val root = DSL {
-        "literal" - interpretation { it.context.literal }
+        "literal" - interpretation { it.mutateContext().call.literal }
         "plus" - interpretation {
             val context = it.mutateContext()
             context.getAndRun<Double>("left") + context.getAndRun<Double>("right")

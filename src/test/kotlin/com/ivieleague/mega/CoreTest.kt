@@ -11,7 +11,7 @@ class CoreTest {
     fun basicTest() = assertEquals(
             3,
             DSL {
-                "literal" - interpretation { it.context.literal }
+                "literal" - interpretation { it.mutateContext().call.literal }
                 "plus" - interpretation {
                     val context = it.mutateContext()
                     context.getAndRun<Int>("left") + context.getAndRun<Int>("right")
@@ -24,8 +24,27 @@ class CoreTest {
     )
 
     @Test
+    fun contextTest() = assertEquals(
+            3,
+            DSL {
+                "literal" - interpretation { it.mutateContext().call.literal }
+                "plus" - interpretation {
+                    val context = it.mutateContext()
+                    context.getAndRun<Int>("left") + context.getAndRun<Int>("right")
+                }
+                "plusTwo" - call(Call.Companion.LANGUAGE_INTERPRET, root("plus")) {
+                    "left" - context("start")
+                    "right" - literal(root("literal"), 2)
+                }
+                "main" - call(Call.Companion.LANGUAGE_INTERPRET, root("plusTwo")) {
+                    "start" - literal(root("literal"), 1)
+                }
+            }.let(::TrackingCallRealization).getAndRun<Int>("main")
+    )
+
+    @Test
     fun sameTest() {
-        val litInterp = { it: CallRealization -> it.context.literal }
+        val litInterp = { it: CallRealization -> it.mutateContext().call.literal }
         val plusInterp = { it: CallRealization ->
             val context = it.mutateContext()
             context.getAndRun<Int>("left") + context.getAndRun<Int>("right")
@@ -50,7 +69,7 @@ class CoreTest {
     @Test
     fun differentTest() {
         assertEquals(false, DSL {
-            "literal" - interpretation { it.context.literal }
+            "literal" - interpretation { it.mutateContext().call.literal }
             "plus" - interpretation {
                 val context = it.mutateContext()
                 context.getAndRun<Int>("left") + context.getAndRun<Int>("right")
@@ -60,7 +79,7 @@ class CoreTest {
                 "right" - literal(root("literal"), 2)
             }
         } same DSL {
-            "literal" - interpretation { it.context.literal }
+            "literal" - interpretation { it.mutateContext().call.literal }
             "plus" - interpretation {
                 val context = it.mutateContext()
                 context.getAndRun<Int>("left") + context.getAndRun<Int>("right")
@@ -76,7 +95,7 @@ class CoreTest {
     fun indirectTest() = assertEquals(
             3,
             DSL {
-                "literal" - interpretation { it.context.literal }
+                "literal" - interpretation { it.mutateContext().call.literal }
                 "plus" - interpretation {
                     val context = it.mutateContext()
                     context.getAndRun<Int>("left") + context.getAndRun<Int>("right")
@@ -135,8 +154,8 @@ class CoreTest {
     fun languageTest() {
         val result = DSL {
             "literal" - abstract {
-                "_lang_test" - action { "Literal: " + it.context.literal.toString() }
-                invocation = { it.context.literal }
+                "_lang_test" - action { "Literal: " + it.mutateContext().call.literal.toString() }
+                invocation = { it.mutateContext().call.literal }
             }
             "plus" - abstract {
                 "_lang_test" - action {

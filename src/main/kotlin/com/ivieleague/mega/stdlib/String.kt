@@ -18,6 +18,8 @@ fun AbstractCallBuilder.standardString() {
                     context.get("separator").mutateInvoke() as String
             )
         }
-        "literal" - interpretation { it.mutateContext().call.literal as String }
+        "literal" - interpretation {
+            it.mutateContext().call.literal as String
+        }
     }
 }

@@ -3,7 +3,7 @@ package com.ivieleague.mega
 /**
  * \n * Created by josep on 2/22/2017.
  */
-class LazyMergedCall(val calls: Collection<Call>) : Call {
+class LazyMergedCall(val calls: List<Call>) : Call {
     override val prototype: Ref? get() = calls.asSequence().mapNotNull(Call::prototype).firstOrNull()
     override val children: Map<String, Ref> = object : Map<String, Ref> {
         override val entries: Set<Map.Entry<String, Ref>>
@@ -41,4 +41,7 @@ class LazyMergedCall(val calls: Collection<Call>) : Call {
     override val language: String? = calls.asSequence().mapNotNull(Call::language).firstOrNull()
     override val literal: Any? = calls.asSequence().mapNotNull(Call::literal).firstOrNull()
     override val invocation: ((CallRealization) -> Any?)? = calls.asSequence().mapNotNull(Call::invocation).firstOrNull()
+
+    override fun equals(other: Any?): Boolean = other is LazyMergedCall && this.calls equalsList other.calls
+    override fun hashCode(): Int = this.calls.sumBy(Call::hashCode)
 }

@@ -60,4 +60,17 @@ class OverheadTest {
         }
         println("Cost ratio: ${megaNanos / directNanos}")
     }
+
+    @Test
+    fun piSolidfyTest() {
+        val program = TestCommons.parsePlusStandardLibraryAlternate(File("./src/main/yaml/picalc.yaml").readText())
+        val programSolidified = program.solidify()
+        val lazyNanos = Performance.nanoseconds(10) {
+            program.invokeAsRoot()
+        }
+        val solidNanos = Performance.nanoseconds(10) {
+            programSolidified.invokeAsRoot()
+        }
+        println("Solid to lazy ratio: ${solidNanos / lazyNanos}")
+    }
 }

@@ -5,7 +5,7 @@ import java.util.*
 class SimpleCallRealization(
         override var call: Call,
         override var root: Call,
-        override var context: Call,
+        var context: Call,
         var labels: MutableMap<String, Call> = HashMap()
 ) : CallRealization {
 

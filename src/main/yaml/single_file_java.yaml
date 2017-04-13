@@ -1,0 +1,32 @@
+---
+mega:
+  main:
+    /single_file_java:
+      /: /interpret
+      =: =mega.string.concat
+      values:
+        - "public class Main {
+  public static void main(String[] args) {"
+        - =: =.action
+          /: /single_file_java
+        - "  }
+}"
+  debug:
+    print:
+      /single_file_java:
+        /: /interpret
+        =: =mega.string.concat
+        values:
+          - "System.out.println("
+          - =.value
+          - ");"
+  string:
+    literal:
+      /single_file_java:
+        /: /interpret
+        =: =mega.string.concat
+        values:
+          - "\""
+          - =: =.
+            /: /interpret
+          - "\""

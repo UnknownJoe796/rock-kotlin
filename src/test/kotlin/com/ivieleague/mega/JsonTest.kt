@@ -26,6 +26,26 @@ class JsonTest {
     }
 
     @Test
+    fun testContext() {
+        val src = JSON.toCall(ObjectMapper(YAMLFactory()).readValue("""---
+plusTwo:
+  =: =mega.integer.signed.4.sum
+  values:
+    - =.value
+    - 2
+/interpret:
+  =: =plusTwo
+  /: /interpret
+  value: 1
+""", Map::class.java))
+        val program = LazyMergedCall(listOf(
+                src,
+                TestCommons.getStandardLibrary()
+        )).solidify()
+        println(program.invokeAsRoot())
+    }
+
+    @Test
     fun lazyTest() {
         val merged = MergedCall(arrayOf(
                 TestCommons.parse(File("./src/main/yaml/picalc.yaml").readText()),
@@ -39,6 +59,7 @@ class JsonTest {
         ))
         val strMerged = ObjectMapper(YAMLFactory()).writeValueAsString(JSON.fromCall(merged))
         val strLazy = ObjectMapper(YAMLFactory()).writeValueAsString(JSON.fromCall(lazy))
+        println(strMerged)
         assert(strMerged == strLazy)
     }
 }

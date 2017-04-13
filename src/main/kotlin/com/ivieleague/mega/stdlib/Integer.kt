@@ -80,7 +80,9 @@ fun AbstractCallBuilder.standardInteger() {
                 }
             }
             "4" - abstract {
-                "literal" - interpretation { it.mutateContext().call.literal as Int }
+                "literal" - interpretation {
+                    it.mutateContext().call.literal as Int
+                }
                 "sum" - interpretation {
                     it.mutateContext().mutateKey("values").invokeList<Int>().fold(0) { total, item ->
                         total + item

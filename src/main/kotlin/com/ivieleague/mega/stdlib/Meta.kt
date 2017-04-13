@@ -43,7 +43,7 @@ fun AbstractCallBuilder.standardMeta() {
 
             "item" - changing(SubRef.Key("item")) {
 //                println("GET: ${it.context}")
-                datas[it.context]!!.get()
+                datas[it.mutateContext().call]!!.get()
             }
 
             "index" - interpretation {
