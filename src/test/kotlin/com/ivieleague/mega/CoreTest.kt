@@ -1,5 +1,6 @@
 package com.ivieleague.mega
 
+import com.ivieleague.mega.old.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

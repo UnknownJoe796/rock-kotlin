@@ -2,7 +2,11 @@ package com.ivieleague.mega
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.ivieleague.mega.stdlib.StandardLibrary
+import com.ivieleague.mega.old.JSON
+import com.ivieleague.mega.old.LazyMergedCall
+import com.ivieleague.mega.old.MergedCall
+import com.ivieleague.mega.old.invokeAsRoot
+import com.ivieleague.mega.old.stdlib.StandardLibrary
 
 /**
  *

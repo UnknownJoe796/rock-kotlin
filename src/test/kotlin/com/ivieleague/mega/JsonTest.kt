@@ -2,7 +2,8 @@ package com.ivieleague.mega
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.ivieleague.mega.stdlib.StandardLibraryMeta
+import com.ivieleague.mega.old.*
+import com.ivieleague.mega.old.stdlib.StandardLibraryMeta
 import org.junit.Test
 import java.io.File
 

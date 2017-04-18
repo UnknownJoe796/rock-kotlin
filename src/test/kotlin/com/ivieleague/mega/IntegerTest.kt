@@ -1,5 +1,6 @@
 package com.ivieleague.mega
 
+import com.ivieleague.mega.old.invokeAsRoot
 import org.junit.Test
 
 /**

@@ -2,6 +2,9 @@ package com.ivieleague.mega
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.ivieleague.mega.old.LazyMergedCall
+import com.ivieleague.mega.old.invokeAsRoot
+import com.ivieleague.mega.old.solidify
 import org.junit.Test
 import java.io.File
 

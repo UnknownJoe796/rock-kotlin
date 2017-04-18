@@ -1,6 +1,9 @@
 package com.ivieleague.mega
 
-import com.ivieleague.mega.stdlib.InterpretedPointer
+import com.ivieleague.mega.old.DSL
+import com.ivieleague.mega.old.MergedCall
+import com.ivieleague.mega.old.invokeAsRoot
+import com.ivieleague.mega.old.stdlib.InterpretedPointer
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
