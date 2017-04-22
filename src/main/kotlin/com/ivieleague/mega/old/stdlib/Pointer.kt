@@ -12,7 +12,7 @@ interface InterpretedPointer {
 fun AbstractCallBuilder.standardPointer() {
     "pointer" - abstract {
         "get" - interpretation {
-            val interpretedPointer = it.mutateContext().mutateKey("this").mutateInvoke() as com.ivieleague.mega.old.InterpretedPointer
+            val interpretedPointer = it.mutateContext().mutateKey("this").mutateInvoke() as InterpretedPointer
             interpretedPointer.value
         }
     }

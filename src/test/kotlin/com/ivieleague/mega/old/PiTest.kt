@@ -1,7 +1,5 @@
-package com.ivieleague.mega
+package com.ivieleague.mega.old
 
-import com.ivieleague.mega.old.invokeAsRoot
-import com.ivieleague.mega.old.same
 import org.junit.Test
 import java.io.File
 

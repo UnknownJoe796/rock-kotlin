@@ -1,8 +1,5 @@
-package com.ivieleague.mega
+package com.ivieleague.mega.old
 
-import com.ivieleague.mega.old.DSL
-import com.ivieleague.mega.old.MergedCall
-import com.ivieleague.mega.old.invokeAsRoot
 import com.ivieleague.mega.old.stdlib.InterpretedPointer
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -17,7 +14,7 @@ class PointerTest {
         val standard = TestCommons.getStandardLibrary()
         val special = DSL {
             "examplePointer" - action {
-                object : InterpretedPointer{
+                object : InterpretedPointer {
                     override var value: Any? = "Test"
                 }
             }

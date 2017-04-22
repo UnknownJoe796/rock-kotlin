@@ -1,8 +1,6 @@
-package com.ivieleague.mega
+package com.ivieleague.mega.old
 
 import com.ivieleague.generic.Performance
-import com.ivieleague.mega.old.invokeAsRoot
-import com.ivieleague.mega.old.solidify
 import org.junit.Test
 import java.io.File
 

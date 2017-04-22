@@ -10,7 +10,7 @@ import com.ivieleague.mega.old.get
 fun AbstractCallBuilder.standardType() {
     "type" - abstract {
         "equal" - interpretation {
-            com.ivieleague.mega.old.typesEqual(it.get("left"), it.get("right"))
+            typesEqual(it.get("left"), it.get("right"))
         }
         "set" - interpretation {
             val interpretedPointer = it.copy().mutateContext().mutateKey("this").mutateInvoke() as InterpretedPointer

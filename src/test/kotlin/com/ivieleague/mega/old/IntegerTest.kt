@@ -1,24 +1,23 @@
-package com.ivieleague.mega
+package com.ivieleague.mega.old
 
-import com.ivieleague.mega.old.invokeAsRoot
 import org.junit.Test
 
 /**
 
  * Created by josep on 2/15/2017.
  */
-class FloatTest {
+class IntegerTest {
 
     @Test
     fun testLiteral() {
         val yml = """---
 /: /interpret
-/interpret: 4.0
+/interpret: 4
 """
         val program = TestCommons.parsePlusStandardLibrary(yml)
 
         val result = program.invokeAsRoot()
-        assert(result == 4.0)
+        assert(result == 4)
     }
 
     @Test
@@ -26,16 +25,16 @@ class FloatTest {
         val yml = """---
 /: /interpret
 /interpret:
-  =: =mega.float.8.sum
+  =: =mega.integer.signed.4.sum
   values:
-    - 1.0
-    - 2.0
-    - 4.0
+    - 1
+    - 2
+    - 4
 """
         val program = TestCommons.parsePlusStandardLibrary(yml)
 
         val result = program.invokeAsRoot()
-        assert(result == 7.0)
+        assert(result == 7)
     }
 
     @Test
@@ -43,16 +42,16 @@ class FloatTest {
         val yml = """---
 /: /interpret
 /interpret:
-  =: =mega.float.8.product
+  =: =mega.integer.signed.4.product
   values:
-    - 1.0
-    - 2.0
-    - 4.0
+    - 1
+    - 2
+    - 4
 """
         val program = TestCommons.parsePlusStandardLibrary(yml)
 
         val result = program.invokeAsRoot()
-        assert(result == 8.0)
+        assert(result == 8)
     }
 
     @Test
@@ -60,14 +59,14 @@ class FloatTest {
         val yml = """---
 /: /interpret
 /interpret:
-  =: =mega.float.8.subtract
-  left: 6.0
-  right: 2.0
+  =: =mega.integer.signed.4.subtract
+  left: 6
+  right: 2
 """
         val program = TestCommons.parsePlusStandardLibrary(yml)
 
         val result = program.invokeAsRoot()
-        assert(result == 4.0)
+        assert(result == 4)
     }
 
     @Test
@@ -75,14 +74,14 @@ class FloatTest {
         val yml = """---
 /: /interpret
 /interpret:
-  =: =mega.float.8.divide
-  left: 6.0
-  right: 2.0
+  =: =mega.integer.signed.4.divide
+  left: 6
+  right: 2
 """
         val program = TestCommons.parsePlusStandardLibrary(yml)
 
         val result = program.invokeAsRoot()
-        assert(result == 3.0)
+        assert(result == 3)
     }
 
     @Test
@@ -90,14 +89,14 @@ class FloatTest {
         val yml = """---
 /: /interpret
 /interpret:
-  =: =mega.float.8.modulus
-  left: 7.0
-  right: 2.0
+  =: =mega.integer.signed.4.modulus
+  left: 7
+  right: 2
 """
         val program = TestCommons.parsePlusStandardLibrary(yml)
 
         val result = program.invokeAsRoot()
-        assert(result == 1.0)
+        assert(result == 1)
     }
 
     @Test
@@ -105,13 +104,13 @@ class FloatTest {
         val yml = """---
 /: /interpret
 /interpret:
-  =: =mega.float.8.negative
-  value: 4.0
+  =: =mega.integer.signed.4.negative
+  value: 4
 """
         val program = TestCommons.parsePlusStandardLibrary(yml)
 
         val result = program.invokeAsRoot()
-        assert(result == -4.0)
+        assert(result == -4)
     }
 
     @Test
@@ -119,42 +118,12 @@ class FloatTest {
         val yml = """---
 /: /interpret
 /interpret:
-  =: =mega.float.8.absolute
-  value: -4.0
+  =: =mega.integer.signed.4.absolute
+  value: -4
 """
         val program = TestCommons.parsePlusStandardLibrary(yml)
 
         val result = program.invokeAsRoot()
-        assert(result == 4.0)
-    }
-
-    @Test
-    fun testCompareTrue() {
-        val yml = """---
-/: /interpret
-/interpret:
-  =: =mega.float.8.compare
-  larger: 4.0
-  smaller: 3.0
-"""
-        val program = TestCommons.parsePlusStandardLibrary(yml)
-
-        val result = program.invokeAsRoot()
-        assert(result == true)
-    }
-
-    @Test
-    fun testCompareFalse() {
-        val yml = """---
-/: /interpret
-/interpret:
-  =: =mega.float.8.compare
-  larger: 4.0
-  smaller: 5.0
-"""
-        val program = TestCommons.parsePlusStandardLibrary(yml)
-
-        val result = program.invokeAsRoot()
-        assert(result == false)
+        assert(result == 4)
     }
 }
