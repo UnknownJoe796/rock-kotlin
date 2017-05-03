@@ -8,6 +8,11 @@ class StandardFunction(override var interpretation: ((InterpretationInterface) -
     override val executions = HashMap<String, Call>()
     override val arguments = HashMap<String, Reference>()
 
+    constructor(other: Function) : this(other.interpretation) {
+        executions.putAll(other.executions)
+        arguments.putAll(other.arguments)
+    }
+
     fun merge(other: Function) {
         if (interpretation == null) interpretation = other.interpretation
         arguments.merge(other.arguments)

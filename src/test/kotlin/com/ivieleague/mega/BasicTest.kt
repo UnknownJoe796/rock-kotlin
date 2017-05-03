@@ -1,5 +1,6 @@
 package com.ivieleague.mega
 
+import com.ivieleague.mega.builder.execute
 import org.junit.Test
 
 /**
@@ -8,7 +9,6 @@ import org.junit.Test
  */
 class BasicTest {
 
-    fun InterpretationInterface.execute(key: String) = execute(Reference.RArgument(listOf(SubRef.Key(key))))
 
     @Test
     fun testBasic() {
