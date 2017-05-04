@@ -32,9 +32,9 @@ object PrimitiveConversion {
     fun Reference.toPrimitive(): Any? {
         return when (this) {
             is Reference.RCall -> this.call.toPrimitive()
-            is Reference.RLabel -> INDICATOR_REFERENCE_STRING + INDICATOR_LABEL + this.label + this.children.toRefStringFull()
-            is Reference.RArgument -> INDICATOR_REFERENCE_STRING + this.children.toRefStringFull()
-            is Reference.RStatic -> INDICATOR_REFERENCE_STRING + INDICATOR_ROOT + this.key + this.children.toRefStringFull()
+            is Reference.RLabel -> INDICATOR_REFERENCE_STRING + INDICATOR_LABEL + this.label + this.children.toRefString()
+            is Reference.RArgument -> INDICATOR_REFERENCE_STRING + this.children.toRefString()
+            is Reference.RStatic -> INDICATOR_REFERENCE_STRING + INDICATOR_ROOT + this.key + this.children.toRefString()
             is Reference.RVirtualCall -> INDICATOR_REFERENCE_STRING + INDICATOR_FUNCTION
         }
     }
@@ -187,18 +187,10 @@ object PrimitiveConversion {
         else -> throw IllegalStateException()
     }
 
-    fun List<SubRef>.toRefStringFull() = joinToString("") {
+    fun List<SubRef>.toRefString() = joinToString("") {
         when (it) {
             is SubRef.Index -> INDICATOR_INDEX_STRING + it.index.toString()
             is SubRef.Key -> INDICATOR_CHILD + it.key
-        }
-    }
-
-    fun List<SubRef>.toRefString() = toRefStringFull().let {
-        if (it[0] == INDICATOR_INDEX) {
-            it.drop(1)
-        } else {
-            it
         }
     }
 
