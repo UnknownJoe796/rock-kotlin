@@ -11,8 +11,8 @@ sealed class Reference {
         override fun copy(): Reference = RArgument(children)
     }
 
-    class RStatic(val children: List<SubRef>) : Reference() {
-        override fun copy(): Reference = RStatic(children)
+    class RStatic(val key: String, val children: List<SubRef>) : Reference() {
+        override fun copy(): Reference = RStatic(key, children)
     }
 
     class RCall(val call: Call) : Reference() {

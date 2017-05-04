@@ -28,6 +28,9 @@ class SimpleInterpreter(
             is Reference.RArgument -> {
                 SimpleInterpreter.resolve(arguments!!, reference.children)
             }
+            is Reference.RStatic -> {
+                SimpleInterpreter(root.calls[reference.key] ?: throw makeException("Static call '${reference.key} not found."), null, SubRef.Key(reference.key), language, null, root)
+            }
             is Reference.RCall -> SimpleInterpreter(reference.call, this, following)
             is Reference.RVirtualCall -> SimpleInterpreter(reference.getCall(this), this, following)
         }
