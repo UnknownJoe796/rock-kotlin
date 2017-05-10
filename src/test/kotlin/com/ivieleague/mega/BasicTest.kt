@@ -2,8 +2,11 @@ package com.ivieleague.mega
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.ivieleague.generic.PushbackReaderDebug
+import com.ivieleague.generic.TabWriter
 import com.ivieleague.mega.builder.execute
 import org.junit.Test
+import java.io.StringWriter
 
 /**
  * Tests the core functionality.
@@ -37,7 +40,30 @@ class BasicTest {
         val recreatedYaml = ObjectMapper(YAMLFactory()).writeValueAsString(PrimitiveConversion.run { recreated.toPrimitive() })
         println(recreatedYaml)
 
+        val manual = root.toManual()
+        println(manual)
+        val alternate = manual.toRootManual()
+
         val interpreter = SimpleInterpreter(root.calls["main"]!!, subRef = SubRef.Key("main"), language = Languages.INTERPRET, root = root, parent = null)
         println(interpreter.execute())
+    }
+
+    fun Root.toManual(): String {
+        val writer = StringWriter()
+        ManualRepresentation().run {
+            TabWriter(writer).apply {
+                writeFile(this@toManual)
+            }
+        }
+        return writer.toString()
+    }
+
+    fun String.toRootManual(): Root = ManualRepresentation().run {
+        val manualReader = PushbackReaderDebug(this@toRootManual.reader(), 128)
+        try {
+            manualReader.parseFile()
+        } catch(e: Throwable) {
+            throw IllegalStateException("At ${manualReader.position}", e)
+        }
     }
 }

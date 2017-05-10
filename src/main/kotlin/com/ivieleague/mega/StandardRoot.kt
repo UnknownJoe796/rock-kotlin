@@ -12,4 +12,7 @@ class StandardRoot : Root {
         functions.merge(other.functions)
         calls.merge(other.calls)
     }
+
+    override fun equals(other: Any?): Boolean = other is Root && extEquals(other)
+    override fun hashCode(): Int = extHashCode()
 }

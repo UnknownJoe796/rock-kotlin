@@ -1,8 +1,6 @@
 package com.ivieleague.mega
 
-import com.ivieleague.generic.peekChar
-import com.ivieleague.generic.readUntil
-import com.ivieleague.generic.skipWhitespace
+import com.ivieleague.generic.*
 import java.io.PushbackReader
 
 /**
@@ -58,6 +56,61 @@ class ManualRepresentation {
     */
 
     val aliasMap = HashMap<String, String>()
+    val reverseAliasMap = HashMap<String, String>()
+
+
+    //Parse
+
+    fun PushbackReader.parseFile(): Root = StandardRoot().also {
+        while (peekCheck("import")) {
+            skip(6)
+            skipWhitespace()
+            val actual = readUntil { it.isWhitespace() }
+            skipWhitespace()
+            val alias = readUntil { it.isWhitespace() }
+            aliasMap[alias] = actual
+            reverseAliasMap[actual] = alias
+            skipWhitespace()
+        }
+        it.calls["_aliases"] = StandardCall(LITERAL_LIST).also {
+            it.items.addAll(aliasMap.map { Reference.RCall(StandardCall(LITERAL_STRING, literal = it.key + "/" + it.value)) })
+        }
+
+        while (!isAtEnd()) {
+            skipWhitespace()
+            val identifier = readUntil { it.isWhitespace() }
+            skipWhitespace()
+            val middle = readChar()
+            skipWhitespace()
+            if (middle == '=') {
+                it.calls[identifier] = parseCall()
+            } else {
+                it.functions[identifier] = parseFunction()
+            }
+            skipWhitespace()
+        }
+    }
+
+    fun PushbackReader.parseFunction(): Function {
+        return StandardFunction().also {
+            skip(1)//'('
+            skipWhitespace()
+            while (!isAtEnd()) {
+                skipWhitespace()
+                if (peekChar() == ')') {
+                    skip(1)
+                    break
+                } else {
+                    val (key, value) = parseArgument()
+                    if (key.startsWith(INDICATOR_LANGUAGE)) {
+                        it.executions[key] = (value as Reference.RCall).call
+                    } else {
+                        it.arguments[key] = value
+                    }
+                }
+            }
+        }
+    }
 
     fun PushbackReader.parseReference(): Reference {
         return when (peekChar()) {
@@ -96,34 +149,34 @@ class ManualRepresentation {
     }
 
     fun PushbackReader.parseNumber(): Call {
-        val number = readUntil { it.isWhitespace() }
-        if (number.contains('.') || number.contains('f')) {
-            return StandardCall(LITERAL_FLOAT, literal = number.toDouble())
+        val number = readUntil { it.isWhitespace() || it == ')' }
+        if (number.contains('.') || number.endsWith('f')) {
+            return StandardCall(LITERAL_FLOAT, literal = number.dropLastWhile { it == 'f' }.toDouble())
         } else {
             return StandardCall(LITERAL_INTEGER, literal = number.toInt())
         }
     }
 
     fun PushbackReader.parseString(): Call {
-        skip(1)
+        assert(readChar() == '"')
         val builder = StringBuilder()
         while (true) {
             builder.append(readUntil('"'))
             if (builder.last() != '\\') break
         }
-        skip(1)
+        assert(readChar() == '"')
         return StandardCall(LITERAL_STRING, literal = builder.toString())
     }
 
     fun PushbackReader.parseCallFunction(): Call = StandardCall("!").also {
         val start = readUntil('(')
-        val labelMarker = start.indexOf('@')
-        if (labelMarker == -1) {
-            it.function = aliasMap[start] ?: start
-        } else {
-            it.function = start.substring(labelMarker + 1).let { aliasMap[it] ?: it }
-            it.label = start.substring(0, labelMarker)
-        }
+        val labelMarker = start.indexOf(INDICATOR_LABEL).takeIf { it != -1 } ?: 0
+        val languageMarker = start.indexOf(INDICATOR_LANGUAGE).takeIf { it != -1 } ?: (start.length - 1)
+//        if (labelMarker in start.indices && languageMarker in start.indices) {
+        it.function = start.substring(labelMarker + 1, languageMarker).let { aliasMap[it] ?: it }
+        it.label = start.substring(0, labelMarker).takeIf { it.isNotBlank() }
+        it.language = start.substring(languageMarker + 1).takeIf { it.isNotBlank() }
+//        }
         skipWhitespace()
         while (true) {
             if (peekChar() == ')') {
@@ -138,6 +191,8 @@ class ManualRepresentation {
 
     fun PushbackReader.parseArgument(): Pair<String, Reference> {
         val identifier = readUntil('=').trim()
+        skipWhitespace()
+        assert(readChar() == '=')
         skipWhitespace()
         val reference = parseReference()
         return identifier to reference
@@ -193,6 +248,118 @@ class ManualRepresentation {
         }
         return list
     }
+
+
+    //Serialize
+
+    fun TabWriter.writeFile(root: Root) {
+        for (aliasString in (root.calls["aliases"]?.items ?: listOf()).mapNotNull { (it as? Reference.RCall)?.call?.literal as? String }) {
+            val split = aliasString.split('/')
+            aliasMap[split[0]] = split[1]
+            reverseAliasMap[split[1]] = split[0]
+        }
+
+        for ((key, function) in root.functions) {
+            write(key)
+            write(" - ")
+            writeFunction(function)
+            writeln()
+        }
+
+        for ((key, function) in root.calls) {
+            write(key)
+            write(" = ")
+            writeCall(function)
+            writeln()
+        }
+    }
+
+    fun TabWriter.writeCall(call: Call) {
+        if (call.arguments.isEmpty() && call.label == null && call.items.isEmpty() && call.language == null) {
+            //literal
+            when (call.function) {
+                LITERAL_STRING -> {
+                    write("\"${call.literal}\"")
+                    return
+                }
+                LITERAL_FLOAT -> {
+                    write(call.literal.toString())
+                    write("f")
+                    return
+                }
+                LITERAL_INTEGER -> {
+                    write(call.literal.toString())
+                    return
+                }
+            }
+        }
+        if (call.function == LITERAL_LIST) {
+            write("[")
+            if (call.items.isNotEmpty()) {
+                writeln(1)
+                writeSeparatingByLine(call.items) {
+                    writeReference(it)
+                }
+                writeln(-1)
+            }
+            write("]")
+            return
+        }
+        if (call.label != null) {
+            write(call.label)
+            write(INDICATOR_LABEL_STRING)
+        }
+        write(call.function)
+        if (call.language != null) {
+            write(INDICATOR_LANGUAGE_STRING)
+            write(call.language)
+        }
+        write("(")
+        if (call.arguments.isNotEmpty()) {
+            writeln(1)
+            writeSeparatingByLine(call.arguments.asIterable()) {
+                write(it.key)
+                write(" = ")
+                writeReference(it.value)
+            }
+            writeln(-1)
+        }
+        write(")")
+    }
+
+    fun TabWriter.writeFunction(function: Function) {
+        write("(")
+        if (function.executions.isNotEmpty() || function.arguments.isNotEmpty()) {
+            writeln(1)
+            writeSeparatingByLine(function.arguments.asIterable()) {
+                write(it.key)
+                write(" = ")
+                writeReference(it.value)
+            }
+            writeSeparatingByLine(function.executions.asIterable()) {
+                write(INDICATOR_LANGUAGE_STRING)
+                write(it.key)
+                write(" = ")
+                writeCall(it.value)
+            }
+            writeln(-1)
+        }
+        write(")")
+    }
+
+    fun TabWriter.writeReference(reference: Reference) {
+        when (reference) {
+            is Reference.RCall -> {
+                writeCall(reference.call)
+            }
+            is Reference.RLabel -> write(INDICATOR_LABEL + reference.label + reference.children.toRefString())
+            is Reference.RArgument -> write(reference.children.toRefString())
+            is Reference.RStatic -> write(INDICATOR_ROOT + reference.key + reference.children.toRefString())
+            is Reference.RVirtualCall -> write("*")
+        }
+    }
+
+    //Other
 
     fun String.indexOf(vararg options: Char, startIndex: Int = 0): Int {
         return options.asSequence().map { this.indexOf(it, startIndex) }.min()!!

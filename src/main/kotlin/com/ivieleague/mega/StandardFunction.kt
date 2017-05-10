@@ -18,4 +18,7 @@ class StandardFunction(override var interpretation: ((InterpretationInterface) -
         arguments.merge(other.arguments)
         executions.merge(other.executions)
     }
+
+    override fun equals(other: Any?): Boolean = other is Function && extEquals(other)
+    override fun hashCode(): Int = extHashCode()
 }

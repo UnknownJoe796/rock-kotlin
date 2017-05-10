@@ -40,4 +40,7 @@ class StandardCall(
         if (language == null) language = other.language
         arguments.merge(other.arguments)
     }
+
+    override fun equals(other: Any?): Boolean = other is Call && extEquals(other)
+    override fun hashCode(): Int = extHashCode()
 }
