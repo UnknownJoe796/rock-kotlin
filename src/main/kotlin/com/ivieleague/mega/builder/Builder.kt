@@ -1,43 +1,11 @@
 package com.ivieleague.mega.builder
 
-import com.ivieleague.mega.Call
-import com.ivieleague.mega.InterpretationInterface
-import com.ivieleague.mega.Reference
-import com.ivieleague.mega.SubRef
+import com.ivieleague.mega.*
 
-fun InterpretationInterface.execute(key: String) = execute(Reference.RArgument(listOf(SubRef.Key(key))))
-fun InterpretationInterface.identify(key: String) = identify(Reference.RArgument(listOf(SubRef.Key(key))))
+fun InterpretationInterface.execute(key: String) = quickResolveKey(key).execute()
+fun InterpretationInterface.execute(index: Int) = quickResolveIndex(index).execute()
+fun <T> InterpretationInterface.executeSequence(key: String) = quickResolveKey(key).let { list ->
+    (0..list.call().items.size - 1).asSequence().map { list.execute(it) as T }
+}
 
-fun InterpretationInterface.executeArgument(vararg children: Any) = execute(Reference.RArgument(children.map {
-    when (it) {
-        is String -> SubRef.Key(it)
-        is Int -> SubRef.Index(it)
-        else -> throw IllegalArgumentException()
-    }
-}))
-
-fun InterpretationInterface.identifyArgument(vararg children: Any) = identify(Reference.RArgument(children.map {
-    when (it) {
-        is String -> SubRef.Key(it)
-        is Int -> SubRef.Index(it)
-        else -> throw IllegalArgumentException()
-    }
-}))
-
-fun Reference.Companion.label(label: String, vararg children: Any) = Reference.RLabel(label, children.map {
-    when (it) {
-        is String -> SubRef.Key(it)
-        is Int -> SubRef.Index(it)
-        else -> throw IllegalArgumentException()
-    }
-})
-
-fun Reference.Companion.argument(vararg children: Any) = Reference.RArgument(children.map {
-    when (it) {
-        is String -> SubRef.Key(it)
-        is Int -> SubRef.Index(it)
-        else -> throw IllegalArgumentException()
-    }
-})
-
-fun Call.toReference() = Reference.RCall(this)
+fun Root.executeMain() = SimpleInterpreter(this.calls["main"]!!, subRef = SubRef.Key("main"), language = Languages.INTERPRET, root = this, parent = null).execute()

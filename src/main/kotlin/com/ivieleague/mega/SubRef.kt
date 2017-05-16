@@ -8,7 +8,7 @@ sealed class SubRef {
     }
 
     class Index(val index: Int) : SubRef() {
-        override fun toString() = index.toString()
+        override fun toString() = "#" + index.toString()
         override fun equals(other: Any?): Boolean = other is SubRef.Index && index == other.index
         override fun hashCode(): Int = index.hashCode() + 1
     }

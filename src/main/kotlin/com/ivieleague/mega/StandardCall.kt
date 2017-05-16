@@ -43,4 +43,7 @@ class StandardCall(
 
     override fun equals(other: Any?): Boolean = other is Call && extEquals(other)
     override fun hashCode(): Int = extHashCode()
+    override fun toString(): String {
+        return "Call(function = $function, label = $label, literal = $literal, language = $language, arguments = ${arguments.asIterable().joinToString { "${it.key} = ${it.value}" }}, items = ${items.joinToString()})"
+    }
 }

@@ -127,6 +127,7 @@ class ManualRepresentation {
                 }
             }
             INDICATOR_LABEL -> {
+                skip(1)
                 val refOnly = readUntil { it.isWhitespace() }
                 val start = refOnly.indexOf(PrimitiveConversion.INDICATOR_CHILD, PrimitiveConversion.INDICATOR_INDEX, startIndex = 2)
                 if (start == -1) {
@@ -144,12 +145,13 @@ class ManualRepresentation {
         in '0'..'9' -> parseNumber()
         '.' -> parseNumber()
         '"' -> parseString()
+        '[' -> parseList()
 //        '\'' -> parseChar()
         else -> parseCallFunction()
     }
 
     fun PushbackReader.parseNumber(): Call {
-        val number = readUntil { it.isWhitespace() || it == ')' }
+        val number = readUntil { it.isWhitespace() || it == ')' || it == ']' }
         if (number.contains('.') || number.endsWith('f')) {
             return StandardCall(LITERAL_FLOAT, literal = number.dropLastWhile { it == 'f' }.toDouble())
         } else {
@@ -169,14 +171,27 @@ class ManualRepresentation {
     }
 
     fun PushbackReader.parseCallFunction(): Call = StandardCall("!").also {
-        val start = readUntil('(')
-        val labelMarker = start.indexOf(INDICATOR_LABEL).takeIf { it != -1 } ?: 0
-        val languageMarker = start.indexOf(INDICATOR_LANGUAGE).takeIf { it != -1 } ?: (start.length - 1)
-//        if (labelMarker in start.indices && languageMarker in start.indices) {
-        it.function = start.substring(labelMarker + 1, languageMarker).let { aliasMap[it] ?: it }
-        it.label = start.substring(0, labelMarker).takeIf { it.isNotBlank() }
-        it.language = start.substring(languageMarker + 1).takeIf { it.isNotBlank() }
-//        }
+        val start = readUntil('(').trim()
+        val labelMarker = start.indexOf(INDICATOR_LABEL)
+        val languageMarker = start.indexOf(INDICATOR_LANGUAGE)
+        if (labelMarker != -1) {
+            if (languageMarker != -1) {
+                it.label = start.substring(0, labelMarker)
+                it.function = start.substring(labelMarker + 1, languageMarker)
+                it.language = start.substring(languageMarker + 1)
+            } else {
+                it.label = start.substring(0, labelMarker)
+                it.function = start.substring(labelMarker + 1)
+            }
+        } else {
+            if (languageMarker != -1) {
+                it.function = start.substring(0, languageMarker)
+                it.language = start.substring(languageMarker + 1)
+            } else {
+                it.function = start
+            }
+        }
+        assert(readChar() == '(')
         skipWhitespace()
         while (true) {
             if (peekChar() == ')') {
@@ -186,6 +201,21 @@ class ManualRepresentation {
                 val (key, value) = parseArgument()
                 it.arguments[key] = value
             }
+            skipWhitespace()
+        }
+    }
+
+    fun PushbackReader.parseList(): Call = StandardCall(LITERAL_LIST).also {
+        assert(readChar() == '[')
+        skipWhitespace()
+        while (true) {
+            if (peekChar() == ']') {
+                skip(1)
+                break
+            } else {
+                it.items.add(parseReference())
+            }
+            skipWhitespace()
         }
     }
 

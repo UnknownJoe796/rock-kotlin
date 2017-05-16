@@ -8,9 +8,10 @@ class StandardRoot : Root {
     override val functions = HashMap<String, Function>()
     override val calls = HashMap<String, Call>()
 
-    fun merge(other: Root) {
+    fun merge(other: Root): StandardRoot {
         functions.merge(other.functions)
         calls.merge(other.calls)
+        return this
     }
 
     override fun equals(other: Any?): Boolean = other is Root && extEquals(other)

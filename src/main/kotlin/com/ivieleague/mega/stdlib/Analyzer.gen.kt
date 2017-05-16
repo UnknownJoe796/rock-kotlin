@@ -14,7 +14,18 @@ import kotlin.reflect.jvm.jvmErasure
 
 object Analyzer {
 
-    val nameOverrides = HashMap<Any, String>()
+    val nameOverrides = HashMap<Any, String>().also {
+        it[Byte::class] = "mega.integer.signed.1"
+        it[Short::class] = "mega.integer.signed.2"
+        it[Int::class] = "mega.integer.signed.4"
+        it[Long::class] = "mega.integer.signed.8"
+        it[Float::class] = "mega.float.4"
+        it[Double::class] = "mega.float.8"
+        it[Char::class] = "mega.character"
+        it[String::class] = "mega.string"
+        it[Boolean::class] = "mega.boolean"
+        it[Math::class.java] = "mega.math"
+    }
 
     val KClass<*>.megaName: String
         get() = this@Analyzer.nameOverrides[this] ?: this.qualifiedName ?: "?"
@@ -100,15 +111,6 @@ fun main(vararg args: String) {
         val javaTypes = listOf(
                 Math::class.java
         )
-        nameOverrides[Byte::class] = "mega.integer.signed.1"
-        nameOverrides[Short::class] = "mega.integer.signed.2"
-        nameOverrides[Int::class] = "mega.integer.signed.4"
-        nameOverrides[Long::class] = "mega.integer.signed.8"
-        nameOverrides[Float::class] = "mega.float.4"
-        nameOverrides[Double::class] = "mega.float.8"
-        nameOverrides[Char::class] = "mega.character"
-        nameOverrides[String::class] = "mega.string"
-        nameOverrides[Math::class.java] = "mega.math"
         for (type in types) {
             println(toMega(type))
         }

@@ -21,7 +21,7 @@ class BasicTest {
             functions["add"] = StandardFunction {
                 (it.execute("left") as Int) + (it.execute("right") as Int)
             }
-            functions["mega.integer.signed.4.literal"] = StandardFunction(InterpretationInterface::literal)
+            functions["mega.integer.signed.4.literal"] = StandardFunction { it.call().literal }
             functions["increment"] = StandardFunction().apply {
                 executions[Languages.DEFAULT] = StandardCall("add").apply {
                     arguments["left"] = Reference.RArgument(listOf(SubRef.Key("value")))
