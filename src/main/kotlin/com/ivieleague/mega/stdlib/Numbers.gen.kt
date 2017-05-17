@@ -17,6 +17,10 @@ fun main(vararg args: String) {
             .replace("1.toDouble()", "1.0")
             .replace("0.toLong()", "0L")
             .replace("1.toLong()", "1L")
+            .replace("0.toInt()", "0")
+            .replace("1.toInt()", "1")
+            .replace(Regex("([^a-zA-Z0-9])\\(it\\.execute\\(\"([a-zA-Z]+)\"\\) as Double\\)\\.toDouble\\(\\)"), "$1(it.execute(\"$2\") as Double)")
+            .replace(Regex("([^a-zA-Z0-9])\\(it\\.execute\\(\"([a-zA-Z]+)\"\\) as Int\\)\\.toInt\\(\\)"), "$1(it.execute(\"$2\") as Int)")
     )
 }
 
@@ -77,12 +81,12 @@ private fun Appendable.generateOperations() {
     }
 
     fun floatOperations(type: Type) {
-        appendln(make(type, "power", mathBinaryTemplate.replace("FUNKOTLIN", "pow"), listOf("this", "value", "exponent")))
+        appendln(make(type, "power", mathBinaryTemplate.replace("FUNKOTLIN", "pow"), listOf("value", "exponent", "")))
         appendln(make(type, "absolute", mathUnaryTemplate.replace("FUNKOTLIN", "abs"), 1))
         appendln(make(type, "ceiling", mathUnaryTemplate.replace("FUNKOTLIN", "ceil"), 1))
         appendln(make(type, "floor", mathUnaryTemplate.replace("FUNKOTLIN", "floor"), 1))
         appendln(make(type, "squareRoot", mathUnaryTemplate.replace("FUNKOTLIN", "sqrt"), 1))
-        appendln(make(type, "round", mathUnaryTemplate.replace("FUNKOTLIN", "round"), 1))
+        appendln(megaFunctionWrapper(type, "round", """Math.round(it.execute("value") as ${type.kotlinName}).to${type.kotlinName}()"""))
         appendln(make(type, "sin", mathUnaryTemplate.replace("FUNKOTLIN", "sin"), 1))
         appendln(make(type, "cos", mathUnaryTemplate.replace("FUNKOTLIN", "cos"), 1))
         appendln(make(type, "tan", mathUnaryTemplate.replace("FUNKOTLIN", "tan"), 1))

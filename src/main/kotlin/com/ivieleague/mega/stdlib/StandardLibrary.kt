@@ -15,6 +15,8 @@ object StandardLibrary : Root {
         string()
         boolean()
         void()
+        pointer()
+        controls()
     }
 
 }

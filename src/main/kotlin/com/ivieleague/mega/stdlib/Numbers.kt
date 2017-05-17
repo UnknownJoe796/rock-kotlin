@@ -14,12 +14,12 @@ fun StandardLibrary.numbers() {
 //Operations
 
 //Operations for mega.float.2
-    functions["mega.float.2.power"] = StandardFunction { Math.pow((it.execute("this") as Float).toDouble(), (it.execute("value") as Float).toDouble()).toFloat() }
+    functions["mega.float.2.power"] = StandardFunction { Math.pow((it.execute("value") as Float).toDouble(), (it.execute("exponent") as Float).toDouble()).toFloat() }
     functions["mega.float.2.absolute"] = StandardFunction { Math.abs((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.2.ceiling"] = StandardFunction { Math.ceil((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.2.floor"] = StandardFunction { Math.floor((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.2.squareRoot"] = StandardFunction { Math.sqrt((it.execute("value") as Float).toDouble()).toFloat() }
-    functions["mega.float.2.round"] = StandardFunction { Math.round((it.execute("value") as Float).toDouble()).toFloat() }
+    functions["mega.float.2.round"] = StandardFunction { Math.round(it.execute("value") as Float).toFloat() }
     functions["mega.float.2.sin"] = StandardFunction { Math.sin((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.2.cos"] = StandardFunction { Math.cos((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.2.tan"] = StandardFunction { Math.tan((it.execute("value") as Float).toDouble()).toFloat() }
@@ -42,12 +42,12 @@ fun StandardLibrary.numbers() {
     functions["mega.float.2.product"] = StandardFunction { it.executeSequence<Float>("values").fold(1f) { product, it -> (product * it) } }
 
 //Operations for mega.float.4
-    functions["mega.float.4.power"] = StandardFunction { Math.pow((it.execute("this") as Float).toDouble(), (it.execute("value") as Float).toDouble()).toFloat() }
+    functions["mega.float.4.power"] = StandardFunction { Math.pow((it.execute("value") as Float).toDouble(), (it.execute("exponent") as Float).toDouble()).toFloat() }
     functions["mega.float.4.absolute"] = StandardFunction { Math.abs((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.4.ceiling"] = StandardFunction { Math.ceil((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.4.floor"] = StandardFunction { Math.floor((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.4.squareRoot"] = StandardFunction { Math.sqrt((it.execute("value") as Float).toDouble()).toFloat() }
-    functions["mega.float.4.round"] = StandardFunction { Math.round((it.execute("value") as Float).toDouble()).toFloat() }
+    functions["mega.float.4.round"] = StandardFunction { Math.round(it.execute("value") as Float).toFloat() }
     functions["mega.float.4.sin"] = StandardFunction { Math.sin((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.4.cos"] = StandardFunction { Math.cos((it.execute("value") as Float).toDouble()).toFloat() }
     functions["mega.float.4.tan"] = StandardFunction { Math.tan((it.execute("value") as Float).toDouble()).toFloat() }
@@ -70,22 +70,22 @@ fun StandardLibrary.numbers() {
     functions["mega.float.4.product"] = StandardFunction { it.executeSequence<Float>("values").fold(1f) { product, it -> (product * it) } }
 
 //Operations for mega.float.8
-    functions["mega.float.8.power"] = StandardFunction { Math.pow((it.execute("this") as Double).toDouble(), (it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.absolute"] = StandardFunction { Math.abs((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.ceiling"] = StandardFunction { Math.ceil((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.floor"] = StandardFunction { Math.floor((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.squareRoot"] = StandardFunction { Math.sqrt((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.round"] = StandardFunction { Math.round((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.sin"] = StandardFunction { Math.sin((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.cos"] = StandardFunction { Math.cos((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.tan"] = StandardFunction { Math.tan((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.asin"] = StandardFunction { Math.asin((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.acos"] = StandardFunction { Math.acos((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.atan"] = StandardFunction { Math.atan((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.log"] = StandardFunction { Math.log((it.execute("value") as Double).toDouble()) }
-    functions["mega.float.8.log10"] = StandardFunction { Math.log10((it.execute("value") as Double).toDouble()) }
+    functions["mega.float.8.power"] = StandardFunction { Math.pow((it.execute("value") as Double), (it.execute("exponent") as Double)) }
+    functions["mega.float.8.absolute"] = StandardFunction { Math.abs((it.execute("value") as Double)) }
+    functions["mega.float.8.ceiling"] = StandardFunction { Math.ceil((it.execute("value") as Double)) }
+    functions["mega.float.8.floor"] = StandardFunction { Math.floor((it.execute("value") as Double)) }
+    functions["mega.float.8.squareRoot"] = StandardFunction { Math.sqrt((it.execute("value") as Double)) }
+    functions["mega.float.8.round"] = StandardFunction { Math.round(it.execute("value") as Double).toDouble() }
+    functions["mega.float.8.sin"] = StandardFunction { Math.sin((it.execute("value") as Double)) }
+    functions["mega.float.8.cos"] = StandardFunction { Math.cos((it.execute("value") as Double)) }
+    functions["mega.float.8.tan"] = StandardFunction { Math.tan((it.execute("value") as Double)) }
+    functions["mega.float.8.asin"] = StandardFunction { Math.asin((it.execute("value") as Double)) }
+    functions["mega.float.8.acos"] = StandardFunction { Math.acos((it.execute("value") as Double)) }
+    functions["mega.float.8.atan"] = StandardFunction { Math.atan((it.execute("value") as Double)) }
+    functions["mega.float.8.log"] = StandardFunction { Math.log((it.execute("value") as Double)) }
+    functions["mega.float.8.log10"] = StandardFunction { Math.log10((it.execute("value") as Double)) }
     functions["mega.float.8.negate"] = StandardFunction { ((it.execute("value") as Double).unaryMinus()) }
-    functions["mega.float.8.absolute"] = StandardFunction { Math.abs((it.execute("value") as Double).toDouble()) }
+    functions["mega.float.8.absolute"] = StandardFunction { Math.abs((it.execute("value") as Double)) }
     functions["mega.float.8.literal"] = StandardFunction { it.call().literal }
     functions["mega.float.8.plus"] = StandardFunction { (it.execute("left") as Double).plus((it.execute("right") as Double)) }
     functions["mega.float.8.minus"] = StandardFunction { (it.execute("left") as Double).minus((it.execute("right") as Double)) }
@@ -276,7 +276,7 @@ fun StandardLibrary.numbers() {
     functions["mega.integer.signed.4_to_mega.integer.signed.8"] = StandardFunction { (it.execute("value") as Int).toLong() }
     functions["mega.integer.signed.4_to_mega.integer.unsigned.1"] = StandardFunction { (it.execute("value") as Int).toByte() }
     functions["mega.integer.signed.4_to_mega.integer.unsigned.2"] = StandardFunction { (it.execute("value") as Int).toShort() }
-    functions["mega.integer.signed.4_to_mega.integer.unsigned.4"] = StandardFunction { (it.execute("value") as Int).toInt() }
+    functions["mega.integer.signed.4_to_mega.integer.unsigned.4"] = StandardFunction { (it.execute("value") as Int) }
     functions["mega.integer.signed.4_to_mega.integer.unsigned.8"] = StandardFunction { (it.execute("value") as Int).toLong() }
     functions["mega.integer.signed.4_to_mega.string"] = StandardFunction { (it.execute("value") as Int).toString() }
 
@@ -325,7 +325,7 @@ fun StandardLibrary.numbers() {
     functions["mega.integer.unsigned.4_to_mega.float.8"] = StandardFunction { (it.execute("value") as Int).toDouble() }
     functions["mega.integer.unsigned.4_to_mega.integer.signed.1"] = StandardFunction { (it.execute("value") as Int).toByte() }
     functions["mega.integer.unsigned.4_to_mega.integer.signed.2"] = StandardFunction { (it.execute("value") as Int).toShort() }
-    functions["mega.integer.unsigned.4_to_mega.integer.signed.4"] = StandardFunction { (it.execute("value") as Int).toInt() }
+    functions["mega.integer.unsigned.4_to_mega.integer.signed.4"] = StandardFunction { (it.execute("value") as Int) }
     functions["mega.integer.unsigned.4_to_mega.integer.signed.8"] = StandardFunction { (it.execute("value") as Int).toLong() }
     functions["mega.integer.unsigned.4_to_mega.integer.unsigned.1"] = StandardFunction { (it.execute("value") as Int).toByte() }
     functions["mega.integer.unsigned.4_to_mega.integer.unsigned.2"] = StandardFunction { (it.execute("value") as Int).toShort() }
