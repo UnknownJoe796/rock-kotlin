@@ -195,6 +195,7 @@ object PrimitiveConversion {
     }
 
     fun String.toSubRefs(): List<SubRef> {
+        if (this.length == 1) return listOf() //It's an empty one
         var identifierStart = 0
         var nextIsIndex = false
         val list = ArrayList<SubRef>()

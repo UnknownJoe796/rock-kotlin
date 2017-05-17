@@ -28,7 +28,10 @@ fun StandardLibrary.controls() {
     import mega.control.block.variable.pointer as getBlockVarPointer
     import mega.integer.signed.4.type as int
     import mega.pointer.set as set
-    block@block(
+    variable - (
+        pointer = getBlockVarPointer( declaration = . )
+    )
+    main = block@block(
         variables = (
             x = variable( type = int  value = 3 )
         )

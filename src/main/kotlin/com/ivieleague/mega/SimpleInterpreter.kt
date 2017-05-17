@@ -12,6 +12,7 @@ class SimpleInterpreter(
     val function: Function = root.functions[call.function] ?: throw makeException("Function '${call.function}' not found")
 
     override fun resolve(subRef: SubRef): SimpleInterpreter = when (subRef) {
+    //TODO: If resolving from defaults, make this temporarily the "arguments"
         is SubRef.Key -> resolve(subRef, call.arguments[subRef.key] ?: function.arguments[subRef.key] ?: throw makeException("Argument '${subRef.key}' not found"))
         is SubRef.Index -> resolve(subRef, call.items[(subRef.index + call.items.size) % call.items.size])
     }
