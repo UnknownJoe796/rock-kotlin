@@ -23,12 +23,19 @@ fun StandardLibrary.controls() {
     }
     /*
     Variables Example
+    import mega.control.block as block
+    import mega.control.block.variable as variable
+    import mega.control.block.variable.pointer as getBlockVarPointer
+    import mega.integer.signed.4.type as int
+    import mega.pointer.set as set
     block@block(
         variables = (
             x = variable( type = int  value = 3 )
         )
         statements = [
-            set( this = getvar(declaration = @block.variables.x)  value = 3 )
+            set( this = getBlockVarPointer(declaration = @block.variables.x)  value = 3 )
+            //Alt, using default from the variable declaration function?
+            set( this = @block.variables.x.pointer  value = 3 )
         ]
     )
     */
