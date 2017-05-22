@@ -9,11 +9,21 @@ class SimpleInterpreter(
         val root: Root = parent!!.root
 ) : InterpretationInterface {
 
+
     val function: Function = root.functions[call.function] ?: throw makeException("Function '${call.function}' not found")
+    val asArguments by lazy {
+        SimpleInterpreter(
+                call = call,
+                parent = parent,
+                subRef = subRef,
+                language = language,
+                arguments = this,
+                root = root
+        )
+    }
 
     override fun resolve(subRef: SubRef): SimpleInterpreter = when (subRef) {
-    //TODO: If resolving from defaults, make this temporarily the "arguments"
-        is SubRef.Key -> resolve(subRef, call.arguments[subRef.key] ?: function.arguments[subRef.key] ?: throw makeException("Argument '${subRef.key}' not found"))
+        is SubRef.Key -> call.arguments[subRef.key]?.let { resolve(subRef, it) } ?: call.arguments[subRef.key]?.let { asArguments.resolve(subRef, it) } ?: throw makeException("Key '${subRef.key}' not found")
         is SubRef.Index -> resolve(subRef, call.items[(subRef.index + call.items.size) % call.items.size])
     }
 
@@ -54,7 +64,7 @@ class SimpleInterpreter(
                     parent = this,
                     subRef = SubRef.Key("language_" + Languages.INTERPRET),
                     language = this.language,
-                    arguments = this,
+                    arguments = arguments,
                     root = this.root
             ))
             else execution(Languages.INTERPRET).execute()

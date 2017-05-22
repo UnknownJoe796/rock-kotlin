@@ -1,7 +1,6 @@
 package com.ivieleague.mega.stdlib
 
-import com.ivieleague.mega.InterpretationInterface
-import com.ivieleague.mega.StandardFunction
+import com.ivieleague.mega.*
 import com.ivieleague.mega.builder.execute
 import com.ivieleague.mega.builder.executeSequence
 
@@ -42,10 +41,21 @@ fun StandardLibrary.controls() {
         ]
     )
     */
+    val blockVariables = HashMap<Pair<InterpretationInterface, Call>, InterpretedPointer>()
+    functions["mega.control.block.variable.pointer"] = StandardFunction {
+        val block = it.resolve(SubRef.Key("block"))
+        val variable = it.resolve(SubRef.Key("variable")).call()
+        blockVariables[block to variable]!!
+    }
     functions["mega.control.block.variable"] = StandardFunction {
         object : InterpretedPointer {
             override var value: Any? = it.execute("value")
         }
+    }.apply {
+        arguments["pointer"] = Reference.RCall(StandardCall("mega.control.block.variable.pointer").also {
+            arguments["block"] = Reference.RArgument(listOf())
+            arguments["variable"] = Reference.RArgument(listOf())
+        })
     }
     functions["mega.control.block"] = StandardFunction {
 
