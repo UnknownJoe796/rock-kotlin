@@ -81,7 +81,7 @@ inline fun PushbackReader.peekUntil(predicate: (Char) -> Boolean): String {
     }
 }
 
-inline fun PushbackReader.peekCheck(data: String): Boolean {
+inline fun PushbackReader.readCheck(data: String): Boolean {
     builder.setLength(0)
     for (char in data) {
         val intChar = read()

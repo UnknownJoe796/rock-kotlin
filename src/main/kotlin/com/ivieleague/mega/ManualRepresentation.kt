@@ -2,6 +2,7 @@ package com.ivieleague.mega
 
 import com.ivieleague.generic.*
 import java.io.PushbackReader
+import java.io.StringWriter
 
 /**
  * Created by josep on 5/3/2017.
@@ -32,6 +33,8 @@ class ManualRepresentation {
         const val INDICATOR_INDEX_STRING = INDICATOR_INDEX.toString()
         const val INDICATOR_ROOT_STRING = INDICATOR_ROOT.toString()
         const val INDICATOR_LABEL_STRING = INDICATOR_LABEL.toString()
+
+        const val REF_CHARS = "@=.#/"
     }
 
     /*
@@ -62,8 +65,8 @@ class ManualRepresentation {
     //Parse
 
     fun PushbackReader.parseFile(): Root = StandardRoot().also {
-        while (peekCheck("import")) {
-            skip(6)
+        skipWhitespace()
+        while (readCheck("import")) {
             skipWhitespace()
             val actual = readUntil { it.isWhitespace() }
             skipWhitespace()
@@ -114,26 +117,26 @@ class ManualRepresentation {
 
     fun PushbackReader.parseReference(): Reference {
         return when (peekChar()) {
-            INDICATOR_CHILD -> Reference.RArgument(readUntil { it.isWhitespace() }.toSubRefs())
-            INDICATOR_INDEX -> Reference.RArgument(readUntil { it.isWhitespace() }.toSubRefs())
+            INDICATOR_CHILD -> Reference.RArgument(readWhile { it.isLetterOrDigit() || it in ManualRepresentation.REF_CHARS }.toSubRefs())
+            INDICATOR_INDEX -> Reference.RArgument(readWhile { it.isLetterOrDigit() || it in ManualRepresentation.REF_CHARS }.toSubRefs())
             INDICATOR_ROOT -> {
                 skip(1)
-                val refOnly = readUntil { it.isWhitespace() }
-                val split = refOnly.indexOf(PrimitiveConversion.INDICATOR_CHILD, PrimitiveConversion.INDICATOR_INDEX)
-                if (split != -1) {
-                    Reference.RStatic(refOnly.substring(0, split), refOnly.substring(split).toSubRefs())
+                val rootKey = readWhile { it.isLetterOrDigit() }
+                val next = peekChar()
+                if (next == INDICATOR_CHILD || next == INDICATOR_INDEX) {
+                    Reference.RStatic(rootKey, readWhile { it.isLetterOrDigit() || it in ManualRepresentation.REF_CHARS }.toSubRefs())
                 } else {
-                    Reference.RStatic(refOnly, listOf())
+                    Reference.RStatic(rootKey, listOf())
                 }
             }
             INDICATOR_LABEL -> {
                 skip(1)
-                val refOnly = readUntil { it.isWhitespace() }
-                val start = refOnly.indexOf(PrimitiveConversion.INDICATOR_CHILD, PrimitiveConversion.INDICATOR_INDEX, startIndex = 2)
-                if (start == -1) {
-                    Reference.RLabel(refOnly.substring(0), listOf())
+                val label = readWhile { it.isLetterOrDigit() }
+                val next = peekChar()
+                if (next == INDICATOR_CHILD || next == INDICATOR_INDEX) {
+                    Reference.RLabel(label, readWhile { it.isLetterOrDigit() || it in ManualRepresentation.REF_CHARS }.toSubRefs())
                 } else {
-                    Reference.RLabel(refOnly.substring(0, start), refOnly.substring(start).toSubRefs())
+                    Reference.RLabel(label, listOf())
                 }
             }
             else -> Reference.RCall(parseCall())
@@ -191,6 +194,7 @@ class ManualRepresentation {
                 it.function = start
             }
         }
+        it.function = aliasMap[it.function] ?: it.function
         assert(readChar() == '(')
         skipWhitespace()
         while (true) {
@@ -222,9 +226,12 @@ class ManualRepresentation {
     fun PushbackReader.parseArgument(): Pair<String, Reference> {
         val identifier = readUntil('=').trim()
         skipWhitespace()
-        assert(readChar() == '=')
+        assert(readChar() == '=', {
+            "Lazy Message"
+        })
         skipWhitespace()
         val reference = parseReference()
+        skipWhitespace()
         return identifier to reference
     }
 
@@ -340,7 +347,7 @@ class ManualRepresentation {
             write(call.label)
             write(INDICATOR_LABEL_STRING)
         }
-        write(call.function)
+        write(reverseAliasMap[call.function] ?: call.function)
         if (call.language != null) {
             write(INDICATOR_LANGUAGE_STRING)
             write(call.language)
@@ -391,6 +398,14 @@ class ManualRepresentation {
     }
 
     //Other
+
+    fun Root.toMRString(): String {
+        val writer = StringWriter()
+        val tab = TabWriter(writer)
+        tab.writeFile(this)
+        tab.flush()
+        return writer.toString()
+    }
 
     fun String.indexOf(vararg options: Char, startIndex: Int = 0): Int {
         return options.asSequence().map { this.indexOf(it, startIndex) }.min()!!

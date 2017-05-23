@@ -23,7 +23,7 @@ class SimpleInterpreter(
     }
 
     override fun resolve(subRef: SubRef): SimpleInterpreter = when (subRef) {
-        is SubRef.Key -> call.arguments[subRef.key]?.let { resolve(subRef, it) } ?: call.arguments[subRef.key]?.let { asArguments.resolve(subRef, it) } ?: throw makeException("Key '${subRef.key}' not found")
+        is SubRef.Key -> call.arguments[subRef.key]?.let { resolve(subRef, it) } ?: function.arguments[subRef.key]?.let { asArguments.resolve(subRef, it) } ?: throw makeException("Key '${subRef.key}' not found")
         is SubRef.Index -> resolve(subRef, call.items[(subRef.index + call.items.size) % call.items.size])
     }
 
@@ -40,14 +40,17 @@ class SimpleInterpreter(
     fun resolve(following: SubRef?, reference: Reference): SimpleInterpreter {
         return when (reference) {
             is Reference.RLabel -> {
-                val label = generateSequence(this) { it.parent }.find { it.call.label == reference.label } ?: throw makeException("Label ${reference.label} not found")
+                val label = generateSequence(this) { it.parent }.find { it.call.label == reference.label } ?:
+                        throw makeException("Label ${reference.label} not found")
                 SimpleInterpreter.resolve(label, reference.children)
             }
             is Reference.RArgument -> {
                 SimpleInterpreter.resolve(arguments!!, reference.children)
             }
             is Reference.RStatic -> {
-                SimpleInterpreter(root.calls[reference.key] ?: throw makeException("Static call '${reference.key} not found."), null, SubRef.Key(reference.key), language, null, root)
+                val static = SimpleInterpreter(root.calls[reference.key] ?:
+                        throw makeException("Static call '${reference.key}' not found."), null, SubRef.Key(reference.key), language, null, root)
+                SimpleInterpreter.resolve(static, reference.children)
             }
             is Reference.RCall -> SimpleInterpreter(reference.call, this, following)
             is Reference.RVirtualCall -> SimpleInterpreter(reference.getCall(this), this, following)
@@ -59,14 +62,7 @@ class SimpleInterpreter(
     override fun execute(): Any? {
         return if (language == Languages.INTERPRET) {
             val interpretation = function.interpretation
-            if (interpretation != null) interpretation.invoke(SimpleInterpreter(
-                    call = this.call,
-                    parent = this,
-                    subRef = SubRef.Key("language_" + Languages.INTERPRET),
-                    language = this.language,
-                    arguments = arguments,
-                    root = this.root
-            ))
+            if (interpretation != null) interpretation.invoke(this)
             else execution(Languages.INTERPRET).execute()
         } else
             execution(language).execute()
@@ -78,12 +74,12 @@ class SimpleInterpreter(
                 function.executions[Languages.DEFAULT].also { executionName = Languages.DEFAULT } ?:
                 throw makeException("Execution '$language' not found")
         return SimpleInterpreter(
-                execution,
-                null,
-                SubRef.Key("language_" + executionName),
-                language,
-                this,
-                this.root
+                call = execution,
+                parent = null,
+                subRef = SubRef.Key("language_" + executionName),
+                language = language,
+                arguments = this,
+                root = this.root
         )
     }
 
@@ -92,7 +88,7 @@ class SimpleInterpreter(
             .takeWhile { it != null }
             .map { it!! }
             .toList()
-            .plus(SubRef.Key(arguments?.call?.function ?: "STATIC"))
+//            .plus(SubRef.Key(arguments?.call?.function ?: "STATIC"))
             .asReversed()
 
     fun stackTrace(): List<List<SubRef>> = generateSequence(this) { it.arguments }

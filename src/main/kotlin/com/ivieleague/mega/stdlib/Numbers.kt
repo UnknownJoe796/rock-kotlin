@@ -129,7 +129,9 @@ fun StandardLibrary.numbers() {
     functions["mega.integer.signed.4.negate"] = StandardFunction { ((it.execute("value") as Int).unaryMinus()) }
     functions["mega.integer.signed.4.absolute"] = StandardFunction { Math.abs((it.execute("value") as Int).toDouble()) }
     functions["mega.integer.signed.4.literal"] = StandardFunction { it.call().literal }
-    functions["mega.integer.signed.4.plus"] = StandardFunction { (it.execute("left") as Int).plus((it.execute("right") as Int)) }
+    functions["mega.integer.signed.4.plus"] = StandardFunction {
+        (it.execute("left") as Int).plus((it.execute("right") as Int))
+    }
     functions["mega.integer.signed.4.minus"] = StandardFunction { (it.execute("left") as Int).minus((it.execute("right") as Int)) }
     functions["mega.integer.signed.4.times"] = StandardFunction { (it.execute("left") as Int).times((it.execute("right") as Int)) }
     functions["mega.integer.signed.4.divide"] = StandardFunction { (it.execute("left") as Int).div((it.execute("right") as Int)) }

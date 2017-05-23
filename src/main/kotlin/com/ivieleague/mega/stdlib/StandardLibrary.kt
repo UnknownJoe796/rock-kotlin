@@ -10,6 +10,7 @@ object StandardLibrary : Root {
     override val calls = HashMap<String, Call>()
 
     init {
+        functions[""] = StandardFunction { }
         functions["LIST"] = StandardFunction { }
         numbers()
         string()

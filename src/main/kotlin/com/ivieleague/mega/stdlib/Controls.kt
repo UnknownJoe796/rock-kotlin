@@ -32,7 +32,7 @@ fun StandardLibrary.controls() {
     )
     main = block@block(
         variables = (
-            x = variable( type = int  value = 3 )
+            x = variable( block = @block  type = int  value = 3 )
         )
         statements = [
             set( this = getBlockVarPointer(declaration = @block.variables.x)  value = 3 )
@@ -41,24 +41,38 @@ fun StandardLibrary.controls() {
         ]
     )
     */
-    val blockVariables = HashMap<Pair<InterpretationInterface, Call>, InterpretedPointer>()
-    functions["mega.control.block.variable.pointer"] = StandardFunction {
+    val blockVariables = HashMap<InterpretationInterface, HashMap<Call, InterpretedPointer>>()
+    functions["mega.control.block.variable.get"] = StandardFunction {
         val block = it.resolve(SubRef.Key("block"))
         val variable = it.resolve(SubRef.Key("variable")).call()
-        blockVariables[block to variable]!!
+        blockVariables[block]!![variable]
     }
-    functions["mega.control.block.variable"] = StandardFunction {
-        object : InterpretedPointer {
-            override var value: Any? = it.execute("value")
-        }
-    }.apply {
-        arguments["pointer"] = Reference.RCall(StandardCall("mega.control.block.variable.pointer").also {
-            arguments["block"] = Reference.RArgument(listOf())
+    functions["mega.control.block.variable"] = StandardFunction().apply {
+        arguments["pointer"] = Reference.RCall(StandardCall("mega.control.block.variable.get").apply {
+            arguments["block"] = Reference.RArgument(listOf(SubRef.Key("block")))
             arguments["variable"] = Reference.RArgument(listOf())
         })
     }
     functions["mega.control.block"] = StandardFunction {
+        //allocate variables
+        val myVars = HashMap<Call, InterpretedPointer>()
+        blockVariables[it] = myVars
+        val variables = it.quickResolveKey("variables")
+        for (key in variables.call().arguments.keys) {
+            val vari = variables.quickResolveKey(key)
+            myVars[vari.call()] = object : InterpretedPointer {
+                override var value: Any? = vari.execute("value")
+            }
+        }
 
-        it.executeSequence<Any?>("statements").last()
+        //run the statements
+        val result = it.executeSequence<Any?>("statements").last()
+
+        //deallocate variables
+        blockVariables.remove(it)
+
+        result
+    }.apply {
+        arguments["variables"] = Reference.RCall(StandardCall(""))
     }
 }
