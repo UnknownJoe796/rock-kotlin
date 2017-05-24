@@ -20,6 +20,12 @@ fun StandardLibrary.controls() {
             }
         }
     }
+    functions["mega.control.loop.break"] = StandardFunction {
+        throw LoopBreak(it.quickResolveKey("loop"))
+    }
+    functions["mega.control.loop.continue"] = StandardFunction {
+        throw LoopBreak(it.quickResolveKey("loop"))
+    }
     /*
     Variables Example
     import mega.control.block as block
@@ -44,7 +50,8 @@ fun StandardLibrary.controls() {
     val blockVariables = HashMap<InterpretationInterface, HashMap<Call, InterpretedPointer>>()
     functions["mega.control.block.variable.get"] = StandardFunction {
         val block = it.resolve(SubRef.Key("block"))
-        val variable = it.resolve(SubRef.Key("variable")).call()
+        val variable = it.resolve(SubRef.Key("variable")).call() //TODO: Can't identify by call because of call equivalence
+        println("get pointer - $block $variable")
         blockVariables[block]!![variable]
     }
     functions["mega.control.block.variable"] = StandardFunction().apply {

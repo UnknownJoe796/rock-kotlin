@@ -18,6 +18,7 @@ object StandardLibrary : Root {
         void()
         pointer()
         controls()
+        debug()
     }
 
 }

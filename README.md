@@ -13,10 +13,10 @@ Using YAML:
 ```yaml
 isATest: true
 main:
-  _proto: /standard.string.concat
+  =: =/standard.string.concat
   values:
     - "This "
-    - _proto: /standard.control.if
+    - =: =/standard.control.if
       condition:
         _proto: /isATest
       consequent: "is"
