@@ -7,4 +7,5 @@ interface InterpretationInterface {
 
     fun call(): Call
     fun execute(): Any?
+    fun key(): String
 }

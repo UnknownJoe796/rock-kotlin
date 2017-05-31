@@ -106,7 +106,7 @@ class ManualRepresentation {
                 } else {
                     val (key, value) = parseArgument()
                     if (key.startsWith(INDICATOR_LANGUAGE)) {
-                        it.executions[key] = (value as Reference.RCall).call
+                        it.executions[key.drop(1)] = (value as Reference.RCall).call
                     } else {
                         it.arguments[key] = value
                     }
@@ -170,7 +170,11 @@ class ManualRepresentation {
             if (builder.last() != '\\') break
         }
         assert(readChar() == '"')
-        return StandardCall(LITERAL_STRING, literal = builder.toString())
+        val language = if (peekChar() == INDICATOR_LANGUAGE) {
+            skip(1)
+            readWhile { it.isLetterOrDigit() }
+        } else null
+        return StandardCall(LITERAL_STRING, literal = builder.toString(), language = language)
     }
 
     fun PushbackReader.parseCallFunction(): Call = StandardCall("!").also {
@@ -291,7 +295,7 @@ class ManualRepresentation {
     //Serialize
 
     fun TabWriter.writeFile(root: Root) {
-        for (aliasString in (root.calls["aliases"]?.items ?: listOf()).mapNotNull { (it as? Reference.RCall)?.call?.literal as? String }) {
+        for (aliasString in (root.calls["_aliases"]?.items ?: listOf()).mapNotNull { (it as? Reference.RCall)?.call?.literal as? String }) {
             val split = aliasString.split('/')
             aliasMap[split[0]] = split[1]
             reverseAliasMap[split[1]] = split[0]

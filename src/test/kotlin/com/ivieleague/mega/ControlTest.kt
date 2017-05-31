@@ -53,7 +53,7 @@ class ControlTest {
                 ]
             )
 """,
-            55 to """
+            45 to """
             import mega.control.if if
             import mega.control.block block
             import mega.control.block.variable blockVar

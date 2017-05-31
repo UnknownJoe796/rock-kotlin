@@ -59,6 +59,12 @@ class SimpleInterpreter(
 
     override fun call(): Call = call
 
+    override fun key(): String = when (subRef) {
+        is SubRef.Key -> subRef.key
+        is SubRef.Index -> subRef.index.toString()
+        else -> throw IllegalStateException()
+    }
+
     override fun execute(): Any? {
         return if (language == Languages.INTERPRET) {
             val interpretation = function.interpretation
@@ -77,7 +83,7 @@ class SimpleInterpreter(
                 call = execution,
                 parent = null,
                 subRef = SubRef.Key("language_" + executionName),
-                language = language,
+                language = execution.language ?: language,
                 arguments = this,
                 root = this.root
         )
@@ -88,7 +94,7 @@ class SimpleInterpreter(
             .takeWhile { it != null }
             .map { it!! }
             .toList()
-//            .plus(SubRef.Key(arguments?.call?.function ?: "STATIC"))
+            .plus(SubRef.Key(arguments?.call?.function ?: "STATIC"))
             .asReversed()
 
     fun stackTrace(): List<List<SubRef>> = generateSequence(this) { it.arguments }

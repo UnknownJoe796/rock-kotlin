@@ -6,8 +6,8 @@ import com.ivieleague.mega.Root
 import com.ivieleague.mega.StandardFunction
 
 object StandardLibrary : Root {
-    override val functions = HashMap<String, Function>()
-    override val calls = HashMap<String, Call>()
+    override val functions = LinkedHashMap<String, Function>()
+    override val calls = LinkedHashMap<String, Call>()
 
     init {
         functions[""] = StandardFunction { }
@@ -19,6 +19,7 @@ object StandardLibrary : Root {
         pointer()
         controls()
         debug()
+        reflection()
     }
 
 }

@@ -26,32 +26,11 @@ fun StandardLibrary.controls() {
     functions["mega.control.loop.continue"] = StandardFunction {
         throw LoopBreak(it.quickResolveKey("loop"))
     }
-    /*
-    Variables Example
-    import mega.control.block as block
-    import mega.control.block.variable as variable
-    import mega.control.block.variable.pointer as getBlockVarPointer
-    import mega.integer.signed.4.type as int
-    import mega.pointer.set as set
-    variable - (
-        pointer = getBlockVarPointer( declaration = . )
-    )
-    main = block@block(
-        variables = (
-            x = variable( block = @block  type = int  value = 3 )
-        )
-        statements = [
-            set( this = getBlockVarPointer(declaration = @block.variables.x)  value = 3 )
-            //Alt, using default from the variable declaration function?
-            set( this = @block.variables.x.pointer  value = 3 )
-        ]
-    )
-    */
-    val blockVariables = HashMap<InterpretationInterface, HashMap<Call, InterpretedPointer>>()
+
+    val blockVariables = HashMap<InterpretationInterface, HashMap<String, InterpretedPointer>>()
     functions["mega.control.block.variable.get"] = StandardFunction {
         val block = it.resolve(SubRef.Key("block"))
-        val variable = it.resolve(SubRef.Key("variable")).call() //TODO: Can't identify by call because of call equivalence
-        println("get pointer - $block $variable")
+        val variable = it.resolve(SubRef.Key("variable")).key()
         blockVariables[block]!![variable]
     }
     functions["mega.control.block.variable"] = StandardFunction().apply {
@@ -62,12 +41,12 @@ fun StandardLibrary.controls() {
     }
     functions["mega.control.block"] = StandardFunction {
         //allocate variables
-        val myVars = HashMap<Call, InterpretedPointer>()
+        val myVars = HashMap<String, InterpretedPointer>()
         blockVariables[it] = myVars
         val variables = it.quickResolveKey("variables")
         for (key in variables.call().arguments.keys) {
             val vari = variables.quickResolveKey(key)
-            myVars[vari.call()] = object : InterpretedPointer {
+            myVars[key] = object : InterpretedPointer {
                 override var value: Any? = vari.execute("value")
             }
         }
