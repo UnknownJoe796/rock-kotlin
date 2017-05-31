@@ -40,7 +40,7 @@ object Analyzer {
     val Parameter.megaName: String?
         get() = this@Analyzer.nameOverrides[this] ?: this.name
 
-    fun toMega(prefix: String, clazz: KClass<*>, func: KFunction<*>): String {
+    fun toRock(prefix: String, clazz: KClass<*>, func: KFunction<*>): String {
         val funcName = func.megaName
         val kotlinType = func.parameters.first().type.jvmErasure.qualifiedName
         val parameterString = func.parameters.drop(1).joinToString {
@@ -52,7 +52,7 @@ object Analyzer {
 
     }
 
-    fun toMega(prefix: String, clazz: Class<*>, func: Method): String {
+    fun toRock(prefix: String, clazz: Class<*>, func: Method): String {
         if (Modifier.isStatic(func.modifiers)) {
             val funcName = func.megaName
             val parameterString = func.parameters.joinToString {
@@ -73,24 +73,24 @@ object Analyzer {
         }
     }
 
-    fun toMega(type: KClass<*>): String {
+    fun toRock(type: KClass<*>): String {
         val builder = StringBuilder()
         try {
             for (func in type.functions) {
-                builder.appendln(toMega(type.megaName, type, func))
+                builder.appendln(toRock(type.megaName, type, func))
             }
         } catch(e: KotlinReflectionInternalError) {
             for (func in type.java.declaredMethods) {
-                builder.appendln(toMega(type.megaName, type.java, func))
+                builder.appendln(toRock(type.megaName, type.java, func))
             }
         }
         return builder.toString()
     }
 
-    fun toMega(type: Class<*>): String {
+    fun toRock(type: Class<*>): String {
         val builder = StringBuilder()
         for (func in type.declaredMethods) {
-            builder.appendln(toMega(type.megaName, type, func))
+            builder.appendln(toRock(type.megaName, type, func))
         }
         return builder.toString()
     }
@@ -112,10 +112,10 @@ fun main(vararg args: String) {
                 Math::class.java
         )
         for (type in types) {
-            println(toMega(type))
+            println(toRock(type))
         }
         for (type in javaTypes) {
-            println(toMega(type))
+            println(toRock(type))
         }
     }
 }
