@@ -1,12 +1,13 @@
 # Rock Programming Language
 
-Rock, the programming language, is a micro-language - meaning it is very minimalistic, much like a micro-kernel.  It is much like LISP, but with maps instead of lists.  It is designed to output source code for any other programming language, with new languages added through additional `.rock` source files.
+Rock, the programming language, is a micro-language - meaning it is very minimalistic, much like a micro-kernel.  It is much like LISP, but with maps instead of lists.  It is designed to output source code for any other programming language, with new languages added through additional source files.
 
-Rock is also intended to be an IDE-centric language, meaning that code isn't meant to be edited directly.  This brings about some nice bonuses:
+Rock is also intended to be an IDE-centric language, meaning that code isn't meant to be edited directly and, in fact, has no primary textual representation.  This brings about some nice bonuses:
 
 - The language can be greatly simplified, eliminating syntactic sugar.
-- The language has no formatting, so there are no arguments about it.  Just set your IDE preferences accordingly.
-- The programming experience is fully translatable, such that programming can be done across language barriers.
+- The language has no formatting.  Just set your IDE preferences accordingly.
+- The IDE can render your code as you desire; if you want it to look like C#, Java, C, or something else, you can.
+- The programming experience is fully translatable, such that programming can be done across human language barriers.
 - The IDE can waste less time on parsing and get right to analysis.
 
 It is named Rock after the NES classic *Rockman*, in which the main character could take the abilities of defeated opponents permanently.  Similarly, once a particular language feature is implemented in Rock, it is available to all languages through transpiling.
@@ -137,6 +138,7 @@ Using JSON:
 
 ### To do - very unfinal
 
+- Memory management
 - Iterate through entries
 - Validation as Language
 - Arrays
