@@ -3,7 +3,7 @@ mega:
   main:
     /single_file_java:
       /: /interpret
-      =: =mega.string.concat
+      =: =rock.string.concat
       values:
         - "public class Main {
   public static void main(String[] args) {"
@@ -15,7 +15,7 @@ mega:
     print:
       /single_file_java:
         /: /interpret
-        =: =mega.string.concat
+        =: =rock.string.concat
         values:
           - "System.out.println("
           - =.value
@@ -24,7 +24,7 @@ mega:
     literal:
       /single_file_java:
         /: /interpret
-        =: =mega.string.concat
+        =: =rock.string.concat
         values:
           - "\""
           - =: =.

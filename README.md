@@ -1,51 +1,74 @@
-# The MEGA Programming Language
+# The Rock Programming Language
 
-The Mega programming language is a micro-language - meaning it is very minimalistic, much like a micro-kernel - that is designed to handle all cases in a practical manner.  It is like LISP, but with keyword arguments and prototypal inheritance.  It is also designed to output source code for any other programming language and is very configurable.
+The Rock programming language is a micro-language - meaning it is very minimalistic, much like a micro-kernel.  It is much like LISP, but with maps instead of lists.  It is designed to output source code for any other programming language, with new languages added through additional `.rock` source files.
 
-Mega is also intended to be an IDE-centric language, meaning that code isn't meant to be edited directly.  This design decision removes the need for syntactic sugar, or in other words, the need for simpler ways to represent certain 
+Rock is also intended to be an IDE-centric language, meaning that code isn't meant to be edited directly.  This brings about some nice bonuses:
 
-It is named Mega after the NES classic *Megaman*, in which the main character could take the abilities of defeated opponents permanently.  Similarly, once a particular language feature is implemented in Mega, it is available to all languages through transpiling.  *Megaman* also featured a character named Protoman, and since this language uses prototypal inheritance, the name seems all the more appropriate.
+- The language can be greatly simplified, eliminating syntactic sugar.
+- The language has no formatting, so there are no arguments about it.  Just set your IDE preferences accordingly.
+- The programming experience is fully translatable, such that programming can be done across language barriers.
+- The IDE can waste less time on parsing and get right to analysis.
+
+It is named Rock after the NES classic *Rockman*, in which the main character could take the abilities of defeated opponents permanently.  Similarly, once a particular language feature is implemented in Rock, it is available to all languages through transpiling.
 
 ## Example
+
+Using custom representation:
+
+```
+main = rock.string.join(
+    values = [
+        "This"
+        "is"
+        rock.control.if(
+            condition = rock.boolean.true()
+            else = "really"
+            then = "not"
+        )
+        "a"
+        "test."
+    ]
+    separator = " "
+)
+```
 
 Using YAML:
 
 ```yaml
-isATest: true
 main:
-  =: =/standard.string.concat
+  =: rock.string.join
   values:
-    - "This "
-    - =: =/standard.control.if
-      condition:
-        _proto: /isATest
-      consequent: "is"
-      alternative: "isn't"
-    - " a "
-    - "test."
+  - "This"
+  - "is"
+  - =: rock.control.if
+    condition: true
+    else: "really"
+    then: "not"
+  - "a"
+  - "test."
+  separator: " "
 ```
 
 Using JSON:
 
 ```json
 {
-  "isATest": true,
-  "main": {
-    "_proto": "/standard.string.concat",
-    "values": [
-      "This ",
-      {
-        "_proto": "/standard.control.if",
-        "condition": {
-          "_proto": "/isATest"
-        },
-        "consequent": "is",
-        "alternative": "isn't"
-      },
-      " a ",
-      "test."
-    ]
-  }
+   "main":{  
+      "=":"rock.string.join",
+      "values":[  
+         "This",
+         "is",
+         {  
+            "=":"rock.control.if",
+            "condition":true,
+            "else":"really",
+            "then":"not"
+         },
+         "a",
+         "test."
+      ],
+      "separator":" "
+   }
 }
 ```
 
@@ -53,19 +76,19 @@ Using JSON:
 
 ### Simplicity
 
-- The core of the language works in a simple, easy-to-understand manner
-- Everything in the language is represented in a single interface
+- There are only two constructs in the whole language: Functions and Function Calls.  All concepts are represented as such.
 
 ### Transpiling and Interpretation
 
 - Easily transpiles to other programming languages
-- Transpiled output is human-readable
+- Transpiled output is human-readable, as the highest representation of an action is translated into code rather than a lower-level one
+- No boilerplate for translated code, as the transpiled output uses the libraries from the given language
 - User can add new languages as transpiling targets
 - Code can be interpreted for easy testing
 
 ### Extendability
 
-- Constructs (like *for*, *if*, and *class*) are user-creatable, meaning that the user can define new language constructs as needed.
+- Constructs (like *for*, *if*, and *class*) are just part of the standard library, meaning that the user can define new language constructs as needed.
 - If new constructs are defined in terms of other constructs, they will function correctly in all languages supporting those other constructs.
 
 ### Formatting
@@ -76,18 +99,18 @@ Using JSON:
 
 ### Compile-time work
 
-- Compile-time reflection
-- Work can be done at compile time
+- Compile-time reflection is encouraged, as it's nearly free
+- Metaprogramming is easy because it's all written in the same language
 
 ### Safety
 
 - Code/constructs/functions validate their uses to ensure they are being used correctly
-- Testing can be directly embedded (if desired) into the constructs themselves
+- Testing can be directly embedded (if desired) into the constructs themselves, keeping related code together
 
 ### Not as important
 
 - Compiling speed - This can be optimized later.  The design so far allows for compiling with multiple threads, so this may end up being a non-issue anyways.
-- Easy to edit in text form - This language isn't meant to be edited directly in text form.  You're meant to use an IDE.  As such, there is very little syntactic sugar in the language.
+- Easy to edit in text form - This language isn't meant to be edited directly in text form.  You're meant to use an IDE.
 
 
 ## Standard Library Goals
@@ -95,15 +118,14 @@ Using JSON:
 - Represent what the programmer means, not what the system does
 - Strictly / strongly typed
 - Use one-word identifiers when both possible and specific enough, and `camelCasing` otherwise.
-- All implied instructions are written out so the user can see them if needed.
+- All implied instructions are written out so the user can see them if needed.  IDEs can hide implied instructions.
 - Easily and efficiently converts to the lowest level
 - Zero-to-low cost abstractions
 - Extendability - Extension functions, variables, and interfaces
 
-## Roadmap Completed
+## Roadmap 
 
-
-## Roadmap
+### Completed
 
 - Strings
 - Integers
@@ -112,6 +134,9 @@ Using JSON:
 - Control Structures
 - Meta
 - Debug
+
+### To do - very unfinal
+
 - Iterate through entries
 - Validation as Language
 - Arrays
@@ -121,34 +146,17 @@ Using JSON:
 - Interfaces (2)
 - Iterator
 - List/Mutable List
-- ArrayList and LinkedList
 - Map/Mutable Map
-- HashMap
 - Include Library
 - Action Stack (for language compiling)
-- Language - Kotlin (1)
-- Language - Kotlin (2)
-- Language - Kotlin (3)
-- Standard Library Auto-implement (1)
-- Standard Library Auto-implement (2)
-- Standard Library Auto-implement (3)
-- Standard Library Auto-implement (4)
-- Compiler in Mega (1)
-- Compiler in Mega (2)
-- Compiler in Mega (3)
-- Compiler in Mega (4)
-- Compiler in Mega (5)
-- Language - Javascript (1)
-- Language - Javascript (2)
-- Language - Javascript (3)
-- Javascript Compiler
-- Visual Editor - Rendering (1)
-- Visual Editor - Rendering (2)
-- Visual Editor - Rendering (3)
-- Visual Editor - Function Search
-- Visual Editor - Auto-insert fields
-- Visual Editor - Interpreter
+- Language - Kotlin
+- Standard Library Auto-implement
+- Compiler written in Rock
+- Language - Javascript
+- IDE - Rendering
+- IDE - Function Search
+- IDE - Auto-insert fields
+- IDE - Interpreter
 - IO Interfaces
 - File IO
-- Network IO (1)
-- Network IO (2)
+- Network IO 
