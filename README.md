@@ -1,6 +1,6 @@
-# The Rock Programming Language
+# Rock Programming Language
 
-The Rock programming language is a micro-language - meaning it is very minimalistic, much like a micro-kernel.  It is much like LISP, but with maps instead of lists.  It is designed to output source code for any other programming language, with new languages added through additional `.rock` source files.
+Rock, the programming language, is a micro-language - meaning it is very minimalistic, much like a micro-kernel.  It is much like LISP, but with maps instead of lists.  It is designed to output source code for any other programming language, with new languages added through additional `.rock` source files.
 
 Rock is also intended to be an IDE-centric language, meaning that code isn't meant to be edited directly.  This brings about some nice bonuses:
 
