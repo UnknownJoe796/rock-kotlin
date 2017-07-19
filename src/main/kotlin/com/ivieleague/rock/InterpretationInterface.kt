@@ -8,4 +8,6 @@ interface InterpretationInterface {
     fun call(): Call
     fun execute(): Any?
     fun key(): String
+
+    fun addedArguments(implementationInterface: InterpretationInterface): InterpretationInterface
 }

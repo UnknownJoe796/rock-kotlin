@@ -6,7 +6,8 @@ class SimpleInterpreter(
         val subRef: SubRef? = null,
         val language: String = call.language ?: parent?.language ?: Languages.INTERPRET,
         var arguments: SimpleInterpreter? = parent?.arguments,
-        val root: Root = parent!!.root
+        val root: Root = parent!!.root,
+        val lambdaArguments: InterpretationInterface? = null
 ) : InterpretationInterface {
 
 
@@ -18,11 +19,12 @@ class SimpleInterpreter(
                 subRef = subRef,
                 language = language,
                 arguments = this,
-                root = root
+                root = root,
+                lambdaArguments = this.lambdaArguments
         )
     }
 
-    override fun resolve(subRef: SubRef): SimpleInterpreter = when (subRef) {
+    override fun resolve(subRef: SubRef): InterpretationInterface = when (subRef) {
         is SubRef.Key -> call.arguments[subRef.key]?.let { resolve(subRef, it) } ?: function.arguments[subRef.key]?.let { asArguments.resolve(subRef, it) } ?: throw makeException("Key '${subRef.key}' not found")
         is SubRef.Index -> resolve(subRef, call.items[(subRef.index + call.items.size) % call.items.size])
     }
@@ -37,7 +39,7 @@ class SimpleInterpreter(
         return resolve(subRef, call.items[(subRef.index + call.items.size) % call.items.size])
     }
 
-    fun resolve(following: SubRef?, reference: Reference): SimpleInterpreter {
+    fun resolve(following: SubRef?, reference: Reference): InterpretationInterface {
         return when (reference) {
             is Reference.RLabel -> {
                 val label = generateSequence(this) { it.parent }.find { it.call.label == reference.label } ?:
@@ -46,6 +48,9 @@ class SimpleInterpreter(
             }
             is Reference.RArgument -> {
                 SimpleInterpreter.resolve(arguments!!, reference.children)
+            }
+            is Reference.RLambdaArgument -> {
+                SimpleInterpreter.resolve(lambdaArguments!!, reference.children)
             }
             is Reference.RStatic -> {
                 val static = SimpleInterpreter(root.calls[reference.key] ?:
@@ -89,6 +94,16 @@ class SimpleInterpreter(
         )
     }
 
+    override fun addedArguments(implementationInterface: InterpretationInterface): InterpretationInterface = SimpleInterpreter(
+            call = this.call,
+            parent = this.parent,
+            subRef = this.subRef,
+            language = this.language,
+            arguments = this.arguments,
+            root = this.root,
+            lambdaArguments = implementationInterface
+    )
+
     fun path(): List<SubRef> = generateSequence(this) { it.parent }
             .map { it.subRef }
             .takeWhile { it != null }
@@ -104,7 +119,7 @@ class SimpleInterpreter(
     fun makeException(message: String) = Exception("$message at ${stackTrace().joinToString("\n") { it.joinToString(".") }}")
 
     companion object {
-        fun resolve(start: SimpleInterpreter, subRefs: List<SubRef>): SimpleInterpreter {
+        fun resolve(start: InterpretationInterface, subRefs: List<SubRef>): InterpretationInterface {
             var current = start
             for (subRef in subRefs) {
                 current = current.resolve(subRef)

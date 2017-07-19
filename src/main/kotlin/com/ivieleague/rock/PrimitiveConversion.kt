@@ -12,6 +12,7 @@ object PrimitiveConversion {
     const val INDICATOR_INDEX = '#'
     const val INDICATOR_ROOT = '/'
     const val INDICATOR_LABEL = '@'
+    const val INDICATOR_LAMBDA = '*'
 
     const val INDICATOR_FUNCTION_STRING = INDICATOR_FUNCTION.toString()
     const val INDICATOR_LANGUAGE_STRING = INDICATOR_LANGUAGE.toString()
@@ -20,6 +21,7 @@ object PrimitiveConversion {
     const val INDICATOR_INDEX_STRING = INDICATOR_INDEX.toString()
     const val INDICATOR_ROOT_STRING = INDICATOR_ROOT.toString()
     const val INDICATOR_LABEL_STRING = INDICATOR_LABEL.toString()
+    const val INDICATOR_LAMBDA_STRING = INDICATOR_LAMBDA.toString()
 
     const val LITERAL_VOID = "rock.void.literal"
     const val LITERAL_STRING = "rock.string.literal"
@@ -34,6 +36,7 @@ object PrimitiveConversion {
             is Reference.RCall -> this.call.toPrimitive()
             is Reference.RLabel -> INDICATOR_REFERENCE_STRING + INDICATOR_LABEL + this.label + this.children.toRefString()
             is Reference.RArgument -> INDICATOR_REFERENCE_STRING + this.children.toRefString()
+            is Reference.RLambdaArgument -> INDICATOR_LAMBDA_STRING + this.children.toRefString()
             is Reference.RStatic -> INDICATOR_REFERENCE_STRING + INDICATOR_ROOT + this.key + this.children.toRefString()
             is Reference.RVirtualCall -> INDICATOR_REFERENCE_STRING + INDICATOR_FUNCTION
         }
@@ -124,6 +127,9 @@ object PrimitiveConversion {
                 }
                 INDICATOR_INDEX -> {
                     Reference.RArgument(this.substring(1).toSubRefs())
+                }
+                INDICATOR_LAMBDA -> {
+                    Reference.RLambdaArgument(this.substring(1).toSubRefs())
                 }
                 else -> {
                     val refOnly = this.substring(1)

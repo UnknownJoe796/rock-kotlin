@@ -25,6 +25,7 @@ class ManualRepresentation {
         const val INDICATOR_INDEX = '#'
         const val INDICATOR_ROOT = '/'
         const val INDICATOR_LABEL = '@'
+        const val INDICATOR_LAMBDA = '*'
 
         const val INDICATOR_FUNCTION_STRING = INDICATOR_FUNCTION.toString()
         const val INDICATOR_LANGUAGE_STRING = INDICATOR_LANGUAGE.toString()
@@ -33,8 +34,9 @@ class ManualRepresentation {
         const val INDICATOR_INDEX_STRING = INDICATOR_INDEX.toString()
         const val INDICATOR_ROOT_STRING = INDICATOR_ROOT.toString()
         const val INDICATOR_LABEL_STRING = INDICATOR_LABEL.toString()
+        const val INDICATOR_LAMBDA_STRING = INDICATOR_LAMBDA.toString()
 
-        const val REF_CHARS = "@=.#/"
+        const val REF_CHARS = "@=.#/*"
     }
 
     /*
@@ -119,6 +121,10 @@ class ManualRepresentation {
         return when (peekChar()) {
             INDICATOR_CHILD -> Reference.RArgument(readWhile { it.isLetterOrDigit() || it in ManualRepresentation.REF_CHARS }.toSubRefs())
             INDICATOR_INDEX -> Reference.RArgument(readWhile { it.isLetterOrDigit() || it in ManualRepresentation.REF_CHARS }.toSubRefs())
+            INDICATOR_LAMBDA -> {
+                skip(1)
+                Reference.RLambdaArgument(readWhile { it.isLetterOrDigit() || it in ManualRepresentation.REF_CHARS }.toSubRefs())
+            }
             INDICATOR_ROOT -> {
                 skip(1)
                 val rootKey = readWhile { it.isLetterOrDigit() }
@@ -396,6 +402,7 @@ class ManualRepresentation {
             }
             is Reference.RLabel -> write(INDICATOR_LABEL + reference.label + reference.children.toRefString())
             is Reference.RArgument -> write(reference.children.toRefString())
+            is Reference.RLambdaArgument -> write(INDICATOR_LAMBDA_STRING + reference.children.toRefString())
             is Reference.RStatic -> write(INDICATOR_ROOT + reference.key + reference.children.toRefString())
             is Reference.RVirtualCall -> write("*")
         }

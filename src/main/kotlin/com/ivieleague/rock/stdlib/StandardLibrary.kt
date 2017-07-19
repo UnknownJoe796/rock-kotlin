@@ -12,6 +12,9 @@ object StandardLibrary : Root {
     init {
         functions[""] = StandardFunction { }
         functions["LIST"] = StandardFunction { }
+        functions["execute"] = StandardFunction {
+            it.quickResolveKey("base").addedArguments(it.quickResolveKey("arguments")).execute()
+        }
         numbers()
         string()
         boolean()
@@ -20,6 +23,8 @@ object StandardLibrary : Root {
         controls()
         debug()
         reflection()
+        array()
+        function()
     }
 
 }

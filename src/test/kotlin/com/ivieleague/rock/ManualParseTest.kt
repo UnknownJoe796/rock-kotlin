@@ -36,6 +36,7 @@ class ManualParseTest {
     }
 
     val referencesValid = listOf(
+            "*lambda.child" to Reference.RLambdaArgument(listOf(SubRef.Key("lambda"), SubRef.Key("child"))),
             "@label.childA#0.childB" to Reference.RLabel("label", listOf(SubRef.Key("childA"), SubRef.Index(0), SubRef.Key("childB"))),
             ".childA#0.childB" to Reference.RArgument(listOf(SubRef.Key("childA"), SubRef.Index(0), SubRef.Key("childB"))),
             "/static.childA#0.childB" to Reference.RStatic("static", listOf(SubRef.Key("childA"), SubRef.Index(0), SubRef.Key("childB")))

@@ -1,0 +1,65 @@
+
+import rock.control.if if
+import rock.control.block block
+import rock.control.block.variable blockVar
+import rock.control.loop loop
+import rock.control.loop.break break
+import rock.integer.signed.4.plus iplus
+import rock.integer.signed.4.compare icompare
+import rock.float.8.plus fplus
+import rock.float.8.times ftimes
+import rock.float.8.divide fdiv
+import rock.float.8.compare fcompare
+import rock.pointer.set set
+import rock.pointer.get get
+import rock.boolean.false false
+import rock.boolean.true true
+import rock.boolean.not not
+import rock.integer.signed.4_to_mega.float.8 itof
+
+main = block@block(
+    variables = (
+        result = blockVar( block = @block  value = 0.0 )
+        add = blockVar( block = @block  value = true() )
+        i = blockVar( block = @block  value = 0 )
+    )
+    statements = [
+        loop@loop(body = block(statements=[
+            if(
+                condition = icompare( lesser = get(this = @block.variables.i.pointer) greater = 10000 )
+                then = ()
+                else = break(loop = @loop)
+            )
+
+            ( comment = rock.debug.print( value = get(this = @block.variables.i.pointer)) )
+
+            set(this = @block.variables.result.pointer  value = fplus(
+                left = get(this = @block.variables.result.pointer)
+                right = fdiv(
+                    left = if(
+                        condition = get(this = @block.variables.add.pointer)
+                        then = 4.0
+                        else = -4.0
+                    )
+                    right = fplus(
+                        left = 1.0
+                        right = ftimes(
+                            left = 2.0
+                            right = itof(value = get(this = @block.variables.i.pointer))
+                        )
+                    )
+                )
+            ))
+
+            set(this = @block.variables.add.pointer  value = not(
+                value = get(this = @block.variables.add.pointer)
+            ))
+
+            set(this = @block.variables.i.pointer  value = iplus(
+                left = get(this = @block.variables.i.pointer)
+                right = 1
+            ))
+        ]))
+        get(this = @block.variables.result.pointer)
+    ]
+)
