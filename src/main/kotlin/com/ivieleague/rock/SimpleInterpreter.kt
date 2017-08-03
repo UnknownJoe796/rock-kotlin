@@ -5,9 +5,9 @@ class SimpleInterpreter(
         val parent: SimpleInterpreter?,
         val subRef: SubRef? = null,
         val language: String = call.language ?: parent?.language ?: Languages.INTERPRET,
-        var arguments: SimpleInterpreter? = parent?.arguments,
+        val arguments: SimpleInterpreter? = parent?.arguments,
         val root: Root = parent!!.root,
-        val lambdaArguments: InterpretationInterface? = null
+        val lambdaArguments: SimpleInterpreter? = null
 ) : InterpretationInterface {
 
 
@@ -24,22 +24,22 @@ class SimpleInterpreter(
         )
     }
 
-    override fun resolve(subRef: SubRef): InterpretationInterface = when (subRef) {
-        is SubRef.Key -> call.arguments[subRef.key]?.let { resolve(subRef, it) } ?: function.arguments[subRef.key]?.let { asArguments.resolve(subRef, it) } ?: throw makeException("Key '${subRef.key}' not found")
+    override fun resolve(subRef: SubRef): SimpleInterpreter = when (subRef) {
+        is SubRef.Key -> call.arguments[subRef.key]?.let { resolve(subRef, it) } ?: function.getArgument(root, subRef.key)?.let { asArguments.resolve(subRef, it) } ?: throw makeException("Key '${subRef.key}' not found")
         is SubRef.Index -> resolve(subRef, call.items[(subRef.index + call.items.size) % call.items.size])
     }
 
-    override fun quickResolveKey(key: String): InterpretationInterface {
+    override fun quickResolveKey(key: String): SimpleInterpreter {
         val subRef = SubRef.Key(key)
-        return resolve(subRef, call.arguments[subRef.key] ?: function.arguments[subRef.key] ?: throw makeException("Argument '${subRef.key}' not found"))
+        return resolve(subRef, call.arguments[subRef.key] ?: function.getArgument(root, subRef.key) ?: throw makeException("Argument '${subRef.key}' not found"))
     }
 
-    override fun quickResolveIndex(index: Int): InterpretationInterface {
+    override fun quickResolveIndex(index: Int): SimpleInterpreter {
         val subRef = SubRef.Index(index)
         return resolve(subRef, call.items[(subRef.index + call.items.size) % call.items.size])
     }
 
-    fun resolve(following: SubRef?, reference: Reference): InterpretationInterface {
+    fun resolve(following: SubRef?, reference: Reference): SimpleInterpreter {
         return when (reference) {
             is Reference.RLabel -> {
                 val label = generateSequence(this) { it.parent }.find { it.call.label == reference.label } ?:
@@ -74,34 +74,35 @@ class SimpleInterpreter(
         return if (language == Languages.INTERPRET) {
             val interpretation = function.interpretation
             if (interpretation != null) interpretation.invoke(this)
-            else execution(Languages.INTERPRET).execute()
+            else resolveExecution(Languages.INTERPRET).execute()
         } else
-            execution(language).execute()
+            resolveExecution(language).execute()
     }
 
-    fun execution(language: String): SimpleInterpreter {
+    fun resolveExecution(language: String): InterpretationInterface {
         var executionName = language
-        val execution = function.executions[language] ?:
-                function.executions[Languages.DEFAULT].also { executionName = Languages.DEFAULT } ?:
-                throw makeException("Execution '$language' not found")
+        val executionReference = function.getExecution(root, language) ?:
+                function.getExecution(root, Languages.DEFAULT).also { executionName = Languages.DEFAULT } ?:
+                throw makeException("Execution '$language' not found for function ${call.function}")
+        val execution = resolve(SubRef.Key("execution_" + executionName), executionReference)
         return SimpleInterpreter(
-                call = execution,
+                call = execution.call,
                 parent = null,
-                subRef = SubRef.Key("language_" + executionName),
-                language = execution.language ?: language,
+                subRef = execution.subRef,
+                language = execution.call.language ?: language,
                 arguments = this,
-                root = this.root
+                root = execution.root
         )
     }
 
-    override fun addedArguments(implementationInterface: InterpretationInterface): InterpretationInterface = SimpleInterpreter(
+    override fun addedArguments(interpretationInterface: InterpretationInterface): InterpretationInterface = SimpleInterpreter(
             call = this.call,
             parent = this.parent,
             subRef = this.subRef,
             language = this.language,
             arguments = this.arguments,
             root = this.root,
-            lambdaArguments = implementationInterface
+            lambdaArguments = interpretationInterface as SimpleInterpreter
     )
 
     fun path(): List<SubRef> = generateSequence(this) { it.parent }
@@ -119,7 +120,7 @@ class SimpleInterpreter(
     fun makeException(message: String) = Exception("$message at ${stackTrace().joinToString("\n") { it.joinToString(".") }}")
 
     companion object {
-        fun resolve(start: InterpretationInterface, subRefs: List<SubRef>): InterpretationInterface {
+        fun resolve(start: SimpleInterpreter, subRefs: List<SubRef>): SimpleInterpreter {
             var current = start
             for (subRef in subRefs) {
                 current = current.resolve(subRef)

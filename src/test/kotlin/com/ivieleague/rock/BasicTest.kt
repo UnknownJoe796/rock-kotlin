@@ -23,10 +23,10 @@ class BasicTest {
             }
             functions["rock.integer.signed.4.literal"] = StandardFunction { it.call().literal }
             functions["increment"] = StandardFunction().apply {
-                executions[Languages.DEFAULT] = StandardCall("add").apply {
+                executions[Languages.DEFAULT] = Reference.RCall(StandardCall("add").apply {
                     arguments["left"] = Reference.RArgument(listOf(SubRef.Key("value")))
                     arguments["right"] = Reference.RCall(StandardCall("rock.integer.signed.4.literal", literal = 1))
-                }
+                })
             }
 
             calls["main"] = StandardCall("increment", language = Languages.INTERPRET).apply {

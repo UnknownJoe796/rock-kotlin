@@ -2,6 +2,16 @@
 
 This is where I come to write ideas.
 
+## Function Inheritance
+
+Because it's flat leveled, things can be cached just fine.
+Everything inherits from 'default'.  This is important because we can use it to establish language defaulting.
+`/kotlin-expression` -> `/kotlin-statement` -> `/default`
+This can also be used to throw errors for certain languages, stating it's not supported, or replacing it with some filler text for human-read translations.
+
+
+
+
 ## Functions
 
 ### Declaration and usage are the same

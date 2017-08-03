@@ -9,5 +9,5 @@ interface InterpretationInterface {
     fun execute(): Any?
     fun key(): String
 
-    fun addedArguments(implementationInterface: InterpretationInterface): InterpretationInterface
+    fun addedArguments(interpretationInterface: InterpretationInterface): InterpretationInterface
 }

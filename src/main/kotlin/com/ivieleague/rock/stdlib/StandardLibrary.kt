@@ -11,6 +11,7 @@ object StandardLibrary : Root {
 
     init {
         functions[""] = StandardFunction { }
+        functions["base"] = StandardFunction()
         functions["LIST"] = StandardFunction { }
         functions["execute"] = StandardFunction {
             it.quickResolveKey("base").addedArguments(it.quickResolveKey("arguments")).execute()

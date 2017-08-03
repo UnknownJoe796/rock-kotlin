@@ -2,6 +2,7 @@ package com.ivieleague.rock
 
 import com.ivieleague.generic.*
 import java.io.PushbackReader
+import java.io.StringReader
 import java.io.StringWriter
 
 /**
@@ -108,7 +109,7 @@ class ManualRepresentation {
                 } else {
                     val (key, value) = parseArgument()
                     if (key.startsWith(INDICATOR_LANGUAGE)) {
-                        it.executions[key.drop(1)] = (value as Reference.RCall).call
+                        it.executions[key.drop(1)] = value
                     } else {
                         it.arguments[key] = value
                     }
@@ -154,6 +155,7 @@ class ManualRepresentation {
         in '0'..'9' -> parseNumber()
         '.' -> parseNumber()
         '"' -> parseString()
+        '`' -> parseTemplateString()
         '[' -> parseList()
 //        '\'' -> parseChar()
         else -> parseCallFunction()
@@ -165,6 +167,40 @@ class ManualRepresentation {
             return StandardCall(LITERAL_FLOAT, literal = number.dropLastWhile { it == 'f' }.toDouble())
         } else {
             return StandardCall(LITERAL_INTEGER, literal = number.toInt())
+        }
+    }
+
+    fun PushbackReader.parseTemplateString(): Call {
+        assert(readChar() == '`')
+        val builder = StringBuilder()
+        while (true) {
+            builder.append(readUntil('`'))
+            if (builder.last() != '\\') break
+        }
+        assert(readChar() == '`')
+        val language = if (peekChar() == INDICATOR_LANGUAGE) {
+            skip(1)
+            readWhile { it.isLetterOrDigit() }
+        } else null
+
+        val templateString = builder.toString()
+        val matchResultSequence = Regex("\\\$\\{([^}]+)}").findAll(templateString)
+        return StandardCall("rock.string.concatenateList", language = language).apply {
+            arguments["values"] = Reference.RCall(StandardCall(LITERAL_LIST).apply {
+                var had = 0
+                for (match in matchResultSequence) {
+                    val beforeString = templateString.substring(had, match.range.start)
+                    if (beforeString.isNotEmpty()) {
+                        items += Reference.RCall(StandardCall(LITERAL_STRING, literal = beforeString))
+                    }
+                    items += PushbackReader(StringReader(match.groupValues[1]), 255).parseReference()
+                    had = match.range.endInclusive + 1
+                }
+                val afterString = templateString.substring(had)
+                if (afterString.isNotEmpty()) {
+                    items += Reference.RCall(StandardCall(LITERAL_STRING, literal = afterString))
+                }
+            })
         }
     }
 
@@ -388,7 +424,7 @@ class ManualRepresentation {
                 write(INDICATOR_LANGUAGE_STRING)
                 write(it.key)
                 write(" = ")
-                writeCall(it.value)
+                writeReference(it.value)
             }
             writeln(-1)
         }

@@ -155,7 +155,7 @@ object PrimitiveConversion {
     fun Map<String, Any?>.toFunction(): Function = StandardFunction().also {
         for ((key, value) in this) {
             if (key[0] == INDICATOR_LANGUAGE) {
-                it.executions[key.drop(1)] = value.toCall()
+                it.executions[key.drop(1)] = value.toRef()
             } else {
                 it.arguments[key] = value.toRef()
             }

@@ -15,10 +15,10 @@ import rock.pointer.get get
 import rock.boolean.false false
 import rock.boolean.true true
 import rock.boolean.not not
-import rock.integer.signed.4_to_mega.float.8 itof
+import rock.integer.signed.4_to_rock.float.8 itof
 
 repeat - (
-    /interpret = block@block(
+    /default = block@block(
         variables = (
             i = blockVar( block = @block  value = 0 )
         )
@@ -30,8 +30,6 @@ repeat - (
                     else = break(loop = @loop)
                 )
 
-                ( comment = rock.debug.print( value = get(this = @block.variables.i.pointer)) )
-
                 set(this = @block.variables.i.pointer  value = iplus(
                     left = get(this = @block.variables.i.pointer)
                     right = 1
@@ -40,7 +38,6 @@ repeat - (
                 execute(base = .body  arguments = (
                     iteration = get(this = @block.variables.i.pointer)
                 ))
-                ( comment = .body )
             ]))
         ]
     )

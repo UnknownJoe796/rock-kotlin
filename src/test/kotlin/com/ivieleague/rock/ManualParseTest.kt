@@ -2,6 +2,7 @@ package com.ivieleague.rock
 
 import com.ivieleague.generic.PushbackReaderDebug
 import org.junit.Test
+import kotlin.test.assertEquals
 
 /**
  * Created by josep on 5/10/2017.
@@ -65,6 +66,21 @@ class ManualParseTest {
             "test ( x = 2 )" to StandardCall("test").apply { arguments["x"] = Reference.RCall(literalTwo) },
             "[2]" to StandardCall(ManualRepresentation.LITERAL_LIST).apply { items.add(Reference.RCall((literalTwo))) },
             "\"test\"" to StandardCall(ManualRepresentation.LITERAL_STRING, literal = "test"),
+            "\"test\"/language" to StandardCall(ManualRepresentation.LITERAL_STRING, literal = "test", language = "language"),
+            "`test`/language" to StandardCall("rock.string.concatenateList", language = "language").apply {
+                arguments["values"] = Reference.RCall(StandardCall("LIST").apply {
+                    items += Reference.RCall(StandardCall(ManualRepresentation.LITERAL_STRING, literal = "test"))
+                })
+            },
+            "`test\${.a}plus\${.b}template`/language" to StandardCall("rock.string.concatenateList", language = "language").apply {
+                arguments["values"] = Reference.RCall(StandardCall("LIST").apply {
+                    items += Reference.RCall(StandardCall(ManualRepresentation.LITERAL_STRING, literal = "test"))
+                    items += Reference.RArgument(listOf(SubRef.Key("a")))
+                    items += Reference.RCall(StandardCall(ManualRepresentation.LITERAL_STRING, literal = "plus"))
+                    items += Reference.RArgument(listOf(SubRef.Key("b")))
+                    items += Reference.RCall(StandardCall(ManualRepresentation.LITERAL_STRING, literal = "template"))
+                })
+            },
             "4f" to StandardCall(ManualRepresentation.LITERAL_FLOAT, literal = 4.0),
             "4.0" to StandardCall(ManualRepresentation.LITERAL_FLOAT, literal = 4.0)
     )
@@ -74,16 +90,16 @@ class ManualParseTest {
         callsValid.forEach {
             println(it.first)
             val reader = PushbackReaderDebug(it.first.reader(), 256)
-            try {
+            val result = try {
                 ManualRepresentation().run {
-                    val result = reader.parseCall()
-                    println("$result VS")
-                    println(it.second)
-                    assert(result == it.second)
+                    reader.parseCall()
                 }
             } catch(e: Throwable) {
                 throw IllegalArgumentException("Broke at ${reader.position}", e)
             }
+            println("$result VS")
+            println(it.second)
+            assertEquals(it.second, result)
         }
     }
 

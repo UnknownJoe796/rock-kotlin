@@ -1,170 +1,228 @@
 package com.ivieleague.rock.stdlib
 
-data class Type(
-        val megaName: String,
-        val kotlinName: String,
-        val useEndConversion: Boolean = false
-)
-
 fun main(vararg args: String) {
-    val builder = StringBuilder()
-    builder.generateOperations()
-    builder.generateConversions()
-    println(builder.toString()
-            .replace("0.toFloat()", "0f")
-            .replace("1.toFloat()", "1f")
-            .replace("0.toDouble()", "0.0")
-            .replace("1.toDouble()", "1.0")
-            .replace("0.toLong()", "0L")
-            .replace("1.toLong()", "1L")
-            .replace("0.toInt()", "0")
-            .replace("1.toInt()", "1")
-            .replace(Regex("([^a-zA-Z0-9])\\(it\\.execute\\(\"([a-zA-Z]+)\"\\) as Double\\)\\.toDouble\\(\\)"), "$1(it.execute(\"$2\") as Double)")
-            .replace(Regex("([^a-zA-Z0-9])\\(it\\.execute\\(\"([a-zA-Z]+)\"\\) as Int\\)\\.toInt\\(\\)"), "$1(it.execute(\"$2\") as Int)")
-    )
-}
+    NumbersGen.run {
+        val builder = StringBuilder()
 
-private fun Appendable.generateOperations() {
-    val unaryTemplate = """((it.execute("ARG0") as KOTLIN).FUNKOTLIN())ENDCONVERSION"""
-    val binaryTemplate = """(it.execute("ARG0") as KOTLIN).FUNKOTLIN((it.execute("ARG1") as KOTLIN))ENDCONVERSION"""
-    val binaryBooleanOpTemplate = """((it.execute("ARG0") as KOTLIN) OP (it.execute("ARG1") as KOTLIN))"""
-    val mathUnaryTemplate = """Math.FUNKOTLIN((it.execute("ARG0") as KOTLIN).toDouble())ENDCONVERSION"""
-    val mathBinaryTemplate = """Math.FUNKOTLIN((it.execute("ARG0") as KOTLIN).toDouble(), (it.execute("ARG1") as KOTLIN).toDouble())ENDCONVERSION"""
-
-    fun megaFunctionWrapper(type: Type, megaName: String, kotlin: String) = "functions[\"${type.megaName}.$megaName\"] = StandardFunction { $kotlin }"
-
-    fun make(type: Type, megaName: String, template: String, arguments: List<String>): String {
-        val result = template
-                .replace("FUNMEGA", megaName)
-                .replace("MEGA", type.megaName)
-                .replace("KOTLIN", type.kotlinName)
-                .let {
-                    if (type.useEndConversion)
-                        it.replace("ENDCONVERSION", ".to${type.kotlinName}()")
-                    else
-                        it.replace("ENDCONVERSION", "")
-                }
-                .let {
-                    var current = it
-                    arguments.forEachIndexed { index, s ->
-                        current = current.replace("ARG${index}", s)
-                    }
-                    current
-                }
-        return megaFunctionWrapper(type, megaName, result)
-    }
-
-    fun make(type: Type, megaName: String, template: String, count: Int): String {
-        return make(type, megaName, template, when (count) {
-            1 -> listOf("value")
-            2 -> listOf("left", "right")
-            else -> throw IllegalArgumentException()
-        })
-    }
-
-    fun numericalOperations(type: Type) {
-        appendln(megaFunctionWrapper(type, "literal", """it.call().literal"""))
-        appendln(make(type, "plus", binaryTemplate.replace("FUNKOTLIN", "plus"), 2))
-        appendln(make(type, "minus", binaryTemplate.replace("FUNKOTLIN", "minus"), 2))
-        appendln(make(type, "times", binaryTemplate.replace("FUNKOTLIN", "times"), 2))
-        appendln(make(type, "divide", binaryTemplate.replace("FUNKOTLIN", "div"), 2))
-        appendln(make(type, "remainder", binaryTemplate.replace("FUNKOTLIN", "rem"), 2))
-        appendln(make(type, "equal", binaryBooleanOpTemplate.replace("OP", "=="), 2))
-        appendln(make(type, "compare", binaryBooleanOpTemplate.replace("OP", "<"), listOf("lesser", "greater")))
-        appendln(megaFunctionWrapper(type, "sum", """it.executeSequence<${type.kotlinName}>("values").fold(0.to${type.kotlinName}()){ sum, it -> (sum + it).to${type.kotlinName}() }"""))
-        appendln(megaFunctionWrapper(type, "product", """it.executeSequence<${type.kotlinName}>("values").fold(1.to${type.kotlinName}()){ product, it -> (product * it).to${type.kotlinName}() }"""))
-    }
-
-    fun signedOperations(type: Type) {
-        appendln(make(type, "negate", unaryTemplate.replace("FUNKOTLIN", "unaryMinus"), 1))
-        appendln(make(type, "absolute", mathUnaryTemplate.replace("FUNKOTLIN", "abs"), 1))
-    }
-
-    fun floatOperations(type: Type) {
-        appendln(make(type, "power", mathBinaryTemplate.replace("FUNKOTLIN", "pow"), listOf("value", "exponent", "")))
-        appendln(make(type, "absolute", mathUnaryTemplate.replace("FUNKOTLIN", "abs"), 1))
-        appendln(make(type, "ceiling", mathUnaryTemplate.replace("FUNKOTLIN", "ceil"), 1))
-        appendln(make(type, "floor", mathUnaryTemplate.replace("FUNKOTLIN", "floor"), 1))
-        appendln(make(type, "squareRoot", mathUnaryTemplate.replace("FUNKOTLIN", "sqrt"), 1))
-        appendln(megaFunctionWrapper(type, "round", """Math.round(it.execute("value") as ${type.kotlinName}).to${type.kotlinName}()"""))
-        appendln(make(type, "sin", mathUnaryTemplate.replace("FUNKOTLIN", "sin"), 1))
-        appendln(make(type, "cos", mathUnaryTemplate.replace("FUNKOTLIN", "cos"), 1))
-        appendln(make(type, "tan", mathUnaryTemplate.replace("FUNKOTLIN", "tan"), 1))
-        appendln(make(type, "asin", mathUnaryTemplate.replace("FUNKOTLIN", "asin"), 1))
-        appendln(make(type, "acos", mathUnaryTemplate.replace("FUNKOTLIN", "acos"), 1))
-        appendln(make(type, "atan", mathUnaryTemplate.replace("FUNKOTLIN", "atan"), 1))
-        appendln(make(type, "log", mathUnaryTemplate.replace("FUNKOTLIN", "log"), 1))
-        appendln(make(type, "log10", mathUnaryTemplate.replace("FUNKOTLIN", "log10"), 1))
-    }
-
-    appendln("//Operations")
-    appendln()
-
-    listOf(
-            Type("rock.float.2", "Float", true),
-            Type("rock.float.4", "Float", true),
-            Type("rock.float.8", "Double")
-    ).forEach {
-        appendln("//Operations for ${it.megaName}")
-        floatOperations(it)
-        signedOperations(it)
-        numericalOperations(it)
-        appendln()
-    }
-    listOf(
-            Type("rock.integer.signed.1", "Byte", true),
-            Type("rock.integer.signed.2", "Short", true),
-            Type("rock.integer.signed.4", "Int"),
-            Type("rock.integer.signed.8", "Long")
-    ).forEach {
-        appendln("//Operations for ${it.megaName}")
-        signedOperations(it)
-        numericalOperations(it)
-        appendln()
-    }
-    listOf(
-            Type("rock.integer.unsigned.1", "Byte", true),
-            Type("rock.integer.unsigned.2", "Short", true),
-            Type("rock.integer.unsigned.4", "Int"),
-            Type("rock.integer.unsigned.8", "Long")
-    ).forEach {
-        appendln("//Operations for ${it.megaName}")
-        numericalOperations(it)
-        appendln()
-    }
-}
-
-private fun Appendable.generateConversions() {
-    appendln("//Conversions")
-
-    val conversionTypes = listOf(
-            Type("rock.float.2", "Float", true),
-            Type("rock.float.4", "Float", true),
-            Type("rock.float.8", "Double"),
-            Type("rock.integer.signed.1", "Byte", true),
-            Type("rock.integer.signed.2", "Short", true),
-            Type("rock.integer.signed.4", "Int"),
-            Type("rock.integer.signed.8", "Long"),
-            Type("rock.integer.unsigned.1", "Byte", true),
-            Type("rock.integer.unsigned.2", "Short", true),
-            Type("rock.integer.unsigned.4", "Int"),
-            Type("rock.integer.unsigned.8", "Long"),
-            Type("rock.string", "String")
-    )
-
-    val convertTemplate = """functions["1MEGA_to_2MEGA"] = StandardFunction{ (it.execute("value") as 1KOTLIN).to2KOTLIN() }"""
-
-    for (type in conversionTypes) {
-        appendln("//Conversions from ${type.megaName}")
-        for (other in conversionTypes) {
-            if (type == other) continue
-            appendln(convertTemplate
-                    .replace("1MEGA", type.megaName)
-                    .replace("2MEGA", other.megaName)
-                    .replace("1KOTLIN", type.kotlinName)
-                    .replace("2KOTLIN", other.kotlinName)
-            )
+        for (operation in NumbersGen.allOperations()) {
+            builder.appendln(operation.toInterpreter())
         }
-        appendln()
+        builder.generateConversions()
+        println(builder.toString()
+                .replace("0.toFloat()", "0f")
+                .replace("1.toFloat()", "1f")
+                .replace("0.toDouble()", "0.0")
+                .replace("1.toDouble()", "1.0")
+                .replace("0.toLong()", "0L")
+                .replace("1.toLong()", "1L")
+                .replace("0.toInt()", "0")
+                .replace("1.toInt()", "1")
+                .replace(Regex("([^a-zA-Z0-9])\\(it\\.execute\\(\"([a-zA-Z]+)\"\\) as Double\\)\\.toDouble\\(\\)"), "$1(it.execute(\"$2\") as Double)")
+                .replace(Regex("([^a-zA-Z0-9])\\(it\\.execute\\(\"([a-zA-Z]+)\"\\) as Int\\)\\.toInt\\(\\)"), "$1(it.execute(\"$2\") as Int)")
+        )
+        builder.setLength(0)
+
+        for (operation in NumbersGen.allOperations()) {
+            builder.appendln(operation.toManrepKotlin())
+        }
+        builder.generateKotlinConversions()
+        println(builder.toString()
+                .replace("0.toFloat()", "0f")
+                .replace("1.toFloat()", "1f")
+                .replace("0.toDouble()", "0.0")
+                .replace("1.toDouble()", "1.0")
+                .replace("0.toLong()", "0L")
+                .replace("1.toLong()", "1L")
+                .replace("0.toInt()", "0")
+                .replace("1.toInt()", "1")
+        )
+        builder.setLength(0)
+    }
+}
+
+object NumbersGen {
+
+    data class Type(
+            val rockName: String,
+            val kotlinName: String,
+            val useEndConversion: Boolean = false
+    )
+
+    data class OperationInput(
+            val argument: (String) -> String,
+            val sequence: (String) -> String,
+            val numericalConversion: (String) -> String
+    )
+
+    data class Operation(
+            val type: Type,
+            val rockName: String,
+            val makeKotlinString: OperationInput.() -> String
+    )
+
+    fun Operation.toInterpreter(): String {
+        val input = OperationInput(
+                argument = { "(it.execute(\"$it\") as ${type.kotlinName})" },
+                sequence = { "it.executeSequence<${type.kotlinName}>(\"$it\")" },
+                numericalConversion = { "($it).to${type.kotlinName}()" }
+        )
+        return "functions[\"${type.rockName}.$rockName\"] = StandardFunction { ${makeKotlinString.invoke(input)} }"
+    }
+
+    fun Operation.toManrepKotlin(): String {
+        val input = OperationInput(
+                argument = { "\${.$it}" },
+                sequence = { "sequenceOf(\${rock.string.join( values = .$it  separator = \", \" )})" },
+                numericalConversion = { "($it).to${type.kotlinName}()" }
+        )
+        return """${type.rockName}.$rockName - ( /kotlin = `${makeKotlinString.invoke(input)}`/interpret )"""
+    }
+
+    fun plainOperations(type: Type) = listOf<Operation>(
+            Operation(type, "plus") { numericalConversion("${argument("left")} + ${argument("right")}") },
+            Operation(type, "minus") { numericalConversion("${argument("left")} - ${argument("right")}") },
+            Operation(type, "times") { numericalConversion("${argument("left")} * ${argument("right")}") },
+            Operation(type, "divide") { numericalConversion("${argument("left")} / ${argument("right")}") },
+            Operation(type, "remainder") { numericalConversion("${argument("left")} % ${argument("right")}") },
+            Operation(type, "equal") { "${argument("left")} == ${argument("right")}" },
+            Operation(type, "compare") { "${argument("lesser")} < ${argument("getter")}" },
+            Operation(type, "sum") { "${sequence("values")}.fold(${numericalConversion("0")}){sum, it -> ${numericalConversion("sum + it")}}" },
+            Operation(type, "product") { "${sequence("values")}.fold(${numericalConversion("1")}){sum, it -> ${numericalConversion("sum + it")}}" }
+    )
+
+    fun signedOperations(type: Type) = listOf<Operation>(
+            Operation(type, "negate") { "-${argument("value")}" }
+    )
+
+    fun floatOperations(type: Type) = listOf<Operation>(
+            Operation(type, "power") { numericalConversion("Math.pow(${argument("value")}.toDouble(), ${argument("exponent")})") },
+            Operation(type, "ceiling") { numericalConversion("Math.ceil(${argument("value")}.toDouble())") },
+            Operation(type, "floor") { numericalConversion("Math.floor(${argument("value")}.toDouble())") },
+            Operation(type, "round") { numericalConversion("Math.round(${argument("value")}.toDouble())") },
+            Operation(type, "squareRoot") { numericalConversion("Math.sqrt(${argument("value")}.toDouble())") },
+            Operation(type, "sin") { numericalConversion("Math.sin(${argument("value")}.toDouble())") },
+            Operation(type, "cos") { numericalConversion("Math.cos(${argument("value")}.toDouble())") },
+            Operation(type, "tan") { numericalConversion("Math.tan(${argument("value")}.toDouble())") },
+            Operation(type, "asin") { numericalConversion("Math.asin(${argument("value")}.toDouble())") },
+            Operation(type, "acos") { numericalConversion("Math.acos(${argument("value")}.toDouble())") },
+            Operation(type, "atan") { numericalConversion("Math.atan(${argument("value")}.toDouble())") },
+            Operation(type, "atan2") { numericalConversion("Math.atan2(${argument("y")}.toDouble(), ${argument("x")}.toDouble())") },
+            Operation(type, "log") { numericalConversion("Math.log(${argument("value")}.toDouble())") },
+            Operation(type, "log10") { numericalConversion("Math.log10(${argument("value")}.toDouble())") }
+    )
+
+    val ubyte = Type("rock.integer.unsigned.1", "Byte", true)
+    val ushort = Type("rock.integer.unsigned.2", "Short", true)
+    val uint = Type("rock.integer.unsigned.4", "Int")
+    val ulong = Type("rock.integer.unsigned.8", "Long")
+    val byte = Type("rock.integer.signed.1", "Byte", true)
+    val short = Type("rock.integer.signed.2", "Short", true)
+    val int = Type("rock.integer.signed.4", "Int")
+    val long = Type("rock.integer.signed.8", "Long")
+    val half = Type("rock.float.2", "Float", true)
+    val float = Type("rock.float.4", "Float", true)
+    val double = Type("rock.float.8", "Double")
+
+    val unsignedTypes = listOf(
+            byte,
+            short,
+            int,
+            long
+    )
+    val signedTypes = listOf(
+            ubyte,
+            ushort,
+            uint,
+            ulong
+    )
+    val floatTypes = listOf(
+            half,
+            float,
+            double
+    )
+    val conversionTypes = unsignedTypes + signedTypes + floatTypes + Type("rock.string", "String")
+
+    fun allOperations(): List<Operation> = unsignedTypes.flatMap { plainOperations(it) } +
+            signedTypes.flatMap { plainOperations(it) + signedOperations(it) } +
+            floatTypes.flatMap { plainOperations(it) + signedOperations(it) + floatOperations(it) } +
+            listOf<Operation>(
+                    Operation(ubyte, "absolute") { numericalConversion("Math.abs(${argument("value")}.toInt())") },
+                    Operation(ushort, "absolute") { numericalConversion("Math.abs(${argument("value")}.toInt())") },
+                    Operation(byte, "absolute") { numericalConversion("Math.abs(${argument("value")}.toInt())") },
+                    Operation(short, "absolute") { numericalConversion("Math.abs(${argument("value")}.toInt())") },
+                    Operation(int, "absolute") { numericalConversion("Math.abs(${argument("value")})") },
+                    Operation(long, "absolute") { numericalConversion("Math.abs(${argument("value")})") },
+                    Operation(uint, "absolute") { numericalConversion("Math.abs(${argument("value")})") },
+                    Operation(ulong, "absolute") { numericalConversion("Math.abs(${argument("value")})") },
+                    Operation(half, "absolute") { numericalConversion("Math.abs(${argument("value")})") },
+                    Operation(float, "absolute") { numericalConversion("Math.abs(${argument("value")})") },
+                    Operation(double, "absolute") { numericalConversion("Math.abs(${argument("value")})") }
+            )
+
+    fun Appendable.generateConversions() {
+        appendln("//Conversions")
+
+        val conversionTypes = listOf(
+                Type("rock.float.2", "Float", true),
+                Type("rock.float.4", "Float", true),
+                Type("rock.float.8", "Double"),
+                Type("rock.integer.signed.1", "Byte", true),
+                Type("rock.integer.signed.2", "Short", true),
+                Type("rock.integer.signed.4", "Int"),
+                Type("rock.integer.signed.8", "Long"),
+                Type("rock.integer.unsigned.1", "Byte", true),
+                Type("rock.integer.unsigned.2", "Short", true),
+                Type("rock.integer.unsigned.4", "Int"),
+                Type("rock.integer.unsigned.8", "Long"),
+                Type("rock.string", "String")
+        )
+
+        val convertTemplate = """functions["1MEGA_to_2MEGA"] = StandardFunction{ (it.execute("value") as 1KOTLIN).to2KOTLIN() }"""
+
+        for (type in conversionTypes) {
+            appendln("//Conversions from ${type.rockName}")
+            for (other in conversionTypes) {
+                if (type == other) continue
+                appendln(convertTemplate
+                        .replace("1MEGA", type.rockName)
+                        .replace("2MEGA", other.rockName)
+                        .replace("1KOTLIN", type.kotlinName)
+                        .replace("2KOTLIN", other.kotlinName)
+                )
+            }
+            appendln()
+        }
+    }
+
+    fun Appendable.generateKotlinConversions() {
+        val conversionTypes = listOf(
+                Type("rock.float.2", "Float", true),
+                Type("rock.float.4", "Float", true),
+                Type("rock.float.8", "Double"),
+                Type("rock.integer.signed.1", "Byte", true),
+                Type("rock.integer.signed.2", "Short", true),
+                Type("rock.integer.signed.4", "Int"),
+                Type("rock.integer.signed.8", "Long"),
+                Type("rock.integer.unsigned.1", "Byte", true),
+                Type("rock.integer.unsigned.2", "Short", true),
+                Type("rock.integer.unsigned.4", "Int"),
+                Type("rock.integer.unsigned.8", "Long"),
+                Type("rock.string", "String")
+        )
+
+        val convertTemplate = "1MEGA_to_2MEGA - ( /kotlin = `(\${.value}).to2KOTLIN()` )"
+
+        for (type in conversionTypes) {
+            for (other in conversionTypes) {
+                if (type == other) continue
+                appendln(convertTemplate
+                        .replace("1MEGA", type.rockName)
+                        .replace("2MEGA", other.rockName)
+                        .replace("1KOTLIN", type.kotlinName)
+                        .replace("2KOTLIN", other.kotlinName)
+                )
+            }
+            appendln()
+        }
     }
 }

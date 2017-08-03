@@ -15,7 +15,7 @@ import rock.pointer.get get
 import rock.boolean.false false
 import rock.boolean.true true
 import rock.boolean.not not
-import rock.integer.signed.4_to_mega.float.8 itof
+import rock.integer.signed.4_to_rock.float.8 itof
 
 main = block@block(
     variables = (
