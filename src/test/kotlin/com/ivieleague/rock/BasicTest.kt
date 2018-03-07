@@ -18,6 +18,7 @@ class BasicTest {
     @Test
     fun testBasic() {
         val root = StandardRoot().apply {
+            functions["base"] = StandardFunction(null)
             functions["add"] = StandardFunction {
                 (it.execute("left") as Int) + (it.execute("right") as Int)
             }

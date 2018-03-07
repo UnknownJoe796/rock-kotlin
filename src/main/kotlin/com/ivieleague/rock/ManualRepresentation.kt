@@ -170,6 +170,31 @@ class ManualRepresentation {
         }
     }
 
+    fun String.escape(): String = this
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
+
+    fun String.unescape(): String = this
+            .replace("\\n", "\n")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t")
+
+    fun PushbackReader.parseString(): Call {
+        assert(readChar() == '"')
+        val builder = StringBuilder()
+        while (true) {
+            builder.append(readUntil('"'))
+            if (builder.last() != '\\') break
+        }
+        assert(readChar() == '"')
+        val language = if (peekChar() == INDICATOR_LANGUAGE) {
+            skip(1)
+            readWhile { it.isLetterOrDigit() }
+        } else null
+        return StandardCall(LITERAL_STRING, literal = builder.toString().unescape(), language = language)
+    }
+
     fun PushbackReader.parseTemplateString(): Call {
         assert(readChar() == '`')
         val builder = StringBuilder()
@@ -191,7 +216,7 @@ class ManualRepresentation {
                 for (match in matchResultSequence) {
                     val beforeString = templateString.substring(had, match.range.start)
                     if (beforeString.isNotEmpty()) {
-                        items += Reference.RCall(StandardCall(LITERAL_STRING, literal = beforeString))
+                        items += Reference.RCall(StandardCall(LITERAL_STRING, literal = beforeString.unescape()))
                     }
                     items += PushbackReader(StringReader(match.groupValues[1]), 255).parseReference()
                     had = match.range.endInclusive + 1
@@ -202,21 +227,6 @@ class ManualRepresentation {
                 }
             })
         }
-    }
-
-    fun PushbackReader.parseString(): Call {
-        assert(readChar() == '"')
-        val builder = StringBuilder()
-        while (true) {
-            builder.append(readUntil('"'))
-            if (builder.last() != '\\') break
-        }
-        assert(readChar() == '"')
-        val language = if (peekChar() == INDICATOR_LANGUAGE) {
-            skip(1)
-            readWhile { it.isLetterOrDigit() }
-        } else null
-        return StandardCall(LITERAL_STRING, literal = builder.toString(), language = language)
     }
 
     fun PushbackReader.parseCallFunction(): Call = StandardCall("!").also {
@@ -363,7 +373,7 @@ class ManualRepresentation {
             //literal
             when (call.function) {
                 LITERAL_STRING -> {
-                    write("\"${call.literal}\"")
+                    write("\"${(call.literal as String).escape()}\"")
                     return
                 }
                 LITERAL_FLOAT -> {

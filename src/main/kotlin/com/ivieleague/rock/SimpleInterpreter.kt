@@ -47,10 +47,11 @@ class SimpleInterpreter(
                 SimpleInterpreter.resolve(label, reference.children)
             }
             is Reference.RArgument -> {
-                SimpleInterpreter.resolve(arguments!!, reference.children)
+                SimpleInterpreter.resolve(arguments ?: throw makeException("Arguments not defined"), reference.children)
             }
             is Reference.RLambdaArgument -> {
-                SimpleInterpreter.resolve(lambdaArguments!!, reference.children)
+                SimpleInterpreter.resolve(lambdaArguments
+                        ?: throw makeException("Lambda Arguments not defined"), reference.children)
             }
             is Reference.RStatic -> {
                 val static = SimpleInterpreter(root.calls[reference.key] ?:
@@ -84,15 +85,14 @@ class SimpleInterpreter(
         val executionReference = function.getExecution(root, language) ?:
                 function.getExecution(root, Languages.DEFAULT).also { executionName = Languages.DEFAULT } ?:
                 throw makeException("Execution '$language' not found for function ${call.function}")
-        val execution = resolve(SubRef.Key("execution_" + executionName), executionReference)
         return SimpleInterpreter(
-                call = execution.call,
+                call = this.call,
                 parent = null,
-                subRef = execution.subRef,
-                language = execution.call.language ?: language,
+                subRef = this.subRef,
+                language = this.call.language ?: language,
                 arguments = this,
-                root = execution.root
-        )
+                root = this.root
+        ).resolve(SubRef.Key("execution_" + executionName), executionReference)
     }
 
     override fun addedArguments(interpretationInterface: InterpretationInterface): InterpretationInterface = SimpleInterpreter(

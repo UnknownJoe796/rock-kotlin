@@ -27,11 +27,11 @@ main = block@block(
         loop@loop(body = block(statements=[
             if(
                 condition = icompare( lesser = get(this = @block.variables.i.pointer) greater = 10000 )
-                then = ()
+                then = rock.void.literal()
                 else = break(loop = @loop)
             )
 
-            ( comment = rock.debug.print( value = get(this = @block.variables.i.pointer)) )
+            rock.meta.comment( value = rock.debug.print( value = get(this = @block.variables.i.pointer)) )
 
             set(this = @block.variables.result.pointer  value = fplus(
                 left = get(this = @block.variables.result.pointer)

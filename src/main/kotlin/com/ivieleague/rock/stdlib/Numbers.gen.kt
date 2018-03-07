@@ -85,7 +85,7 @@ object NumbersGen {
             Operation(type, "divide") { numericalConversion("${argument("left")} / ${argument("right")}") },
             Operation(type, "remainder") { numericalConversion("${argument("left")} % ${argument("right")}") },
             Operation(type, "equal") { "${argument("left")} == ${argument("right")}" },
-            Operation(type, "compare") { "${argument("lesser")} < ${argument("getter")}" },
+            Operation(type, "compare") { "${argument("lesser")} < ${argument("greater")}" },
             Operation(type, "sum") { "${sequence("values")}.fold(${numericalConversion("0")}){sum, it -> ${numericalConversion("sum + it")}}" },
             Operation(type, "product") { "${sequence("values")}.fold(${numericalConversion("1")}){sum, it -> ${numericalConversion("sum + it")}}" }
     )

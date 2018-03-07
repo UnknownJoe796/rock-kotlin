@@ -10,8 +10,8 @@ object StandardLibrary : Root {
     override val calls = LinkedHashMap<String, Call>()
 
     init {
-        functions[""] = StandardFunction { }
-        functions["base"] = StandardFunction()
+        functions[""] = StandardFunction(inheritsFrom = null)
+        functions["base"] = StandardFunction(inheritsFrom = null)
         functions["LIST"] = StandardFunction { }
         functions["execute"] = StandardFunction {
             it.quickResolveKey("base").addedArguments(it.quickResolveKey("arguments")).execute()
@@ -25,6 +25,7 @@ object StandardLibrary : Root {
         debug()
         reflection()
         array()
+        meta()
         function()
     }
 

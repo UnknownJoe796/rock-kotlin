@@ -18,7 +18,7 @@ class StandardFunction(
     }
 
     fun merge(other: Function) {
-        if (inheritsFrom == null) inheritsFrom = other.inheritsFrom
+        if (inheritsFrom == "base") inheritsFrom = other.inheritsFrom
         if (interpretation == null) interpretation = other.interpretation
         arguments.merge(other.arguments)
         executions.merge(other.executions)

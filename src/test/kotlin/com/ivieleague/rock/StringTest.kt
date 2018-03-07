@@ -14,7 +14,8 @@ class StringTest {
             "This is a test." to """rock.string.concatenate(left = "This is a " right = "test.")""",
             "This is a test." to """rock.string.concatenateList(values = ["This " "is " "a " "test."])""",
             "This is a test." to "`This is a \${\"test\"}.`",
-            "This is a test." to """rock.string.join(values = ["This" "is" "a" "test."] separator = " ")"""
+            "This is a test." to """rock.string.join(values = ["This" "is" "a" "test."] separator = " ")""",
+            "This is a test." to """rock.string.joinMapValues(values = (a = "This" b = "is" c = "a" d = "test.") separator = " ")"""
     )
 
     @Test fun runAllInstructions() {

@@ -32,7 +32,8 @@ base - ( /language = "UNKNOWN"/interpret )
     val instructions = listOf(
             "Add 3 and 4 together" to """main = rock.integer.signed.4.plus/language( left = 3  right = 4 )""",
             "UNKNOWN" to """main = rock.void.literal/language()""",
-            "(3 + 4).toInt()" to """main = rock.integer.signed.4.plus/kotlin( left = 3  right = 4 )"""
+            "(3 + 4).toInt()" to """main = rock.integer.signed.4.plus/kotlin( left = 3  right = 4 )""",
+            "((3 + 4).toInt() + 5).toInt()" to """main = rock.integer.signed.4.plus/kotlin( left = rock.integer.signed.4.plus/kotlin( left = 3  right = 4 ) right = 5)"""
     )
 
     @Test fun runAllInstructions() {
